@@ -2,8 +2,8 @@ module Towelie
   module CodeBase
     def parse(dir)
       @method_definitions = []
-      Find.find(dir) do |filename|
-        next if File.directory? filename or filename =~ /.*\.(git|svn).*/
+      dir = File.expand_path(dir)
+      Find.find(*Dir["#{dir}/**/*.rb"]) do |filename|
         extract_definitions(@method_definitions, (ParseTree.translate File.read(filename)), filename)
       end
     end

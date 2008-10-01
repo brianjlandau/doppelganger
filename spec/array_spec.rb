@@ -1,4 +1,4 @@
-require 'lib/array'
+require 'lib/towelie/array'
 
 describe Array do
   it "identifies duplicate elements" do

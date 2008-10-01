@@ -31,3 +31,5 @@ module Towelie
     end
   end
 end
+
+Towelie.send :include, Towelie::CodeBase

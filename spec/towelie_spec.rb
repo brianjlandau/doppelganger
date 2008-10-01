@@ -1,4 +1,4 @@
-require 'lib/array'
+require 'lib/towelie/array'
 require 'lib/towelie'
 include Towelie
 

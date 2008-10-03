@@ -51,9 +51,8 @@ class Towelie::CLI
   
   def self.run(args)
     options = parse(args)
-    towel = Towelie.new
-    duplicates = Towelie.duplicated
-    puts duplicates
+    towel = Towelie::Analyzer.new(options.dir)
+    duplicates = Towelie.duplicates
   end
 end
 

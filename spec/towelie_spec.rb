@@ -1,9 +1,7 @@
-require 'lib/towelie/array'
 require 'lib/towelie'
-include Towelie
 
 describe Towelie do
-  before(:all) do
+  before(:each) do
     @the_nodes = [
                   # second_file.rb
                   [:defn, :foo, [:args],
@@ -83,67 +81,82 @@ end',
   @variable = "foo"
 end'
     ]
+    
+    @test_data_analysis = Towelie::Analyzer.new("spec/test_data")
+    @classes_modules_analysis = Towelie::Analyzer.new("spec/classes_modules")
   end
   
   it "identifies duplication" do
-    duplication?("spec/test_data").should be_true
-    duplication?("spec/classes_modules").should be_true
+    @test_data_analysis.duplication?.should be_true
+    @classes_modules_analysis.duplication?.should be_true
   end
+  
   it "returns no false positives when identifying duplication" do
-    duplication?("spec/non_duplicating_data").should be_false
+    analysis = Towelie::Analyzer.new("spec/non_duplicating_data")
+    analysis.duplication?.should be_false
   end
+  
   it "extracts :defn nodes" do
-    parse("spec/test_data")
-    method_arrays = @method_definitions.map {|mdef| mdef.node.to_a}
+    method_arrays = @test_data_analysis.method_definitions.map {|mdef| mdef.node.to_a}
     method_arrays.should include @the_nodes[0]
     method_arrays.should include @the_nodes[1]
-    parse("spec/classes_modules")
-    method_arrays = @method_definitions.map {|mdef| mdef.node.to_a}
+    method_arrays = @classes_modules_analysis.method_definitions.map {|mdef| mdef.node.to_a}
     method_arrays.should include @the_nodes[0]
     method_arrays.should include @the_nodes[1]
   end
+  
   it "isolates duplicated blocks" do
-    to_ruby(duplicated("spec/test_data")).should == @duplicated_block
-    to_ruby(duplicated("spec/classes_modules")).should == @duplicated_block
+    Towelie::View.to_ruby(@test_data_analysis.duplicates).should == @duplicated_block
+    Towelie::View.to_ruby(@classes_modules_analysis.duplicates).should == @duplicated_block
   end
+  
   it "reports unique code" do
-    test_data_unique_results = to_ruby(unique("spec/test_data"))
-    classes_modules_unique_results = to_ruby(unique("spec/classes_modules"))
+    test_data_unique_results = Towelie::View.to_ruby(@test_data_analysis.unique)
+    classes_modules_unique_results = Towelie::View.to_ruby(@classes_modules_analysis.unique)
     @unique_block.each do |method|
       test_data_unique_results.should match %r[#{Regexp.escape(method)}]
       classes_modules_unique_results.should match %r[#{Regexp.escape(method)}]
     end
   end
+  
   it "reports distinct methods with the same name" do
-    test_data_homonym_results = to_ruby(homonyms("spec/test_data"))
-    classes_modules_homonym_results = to_ruby(homonyms("spec/classes_modules"))
+    test_data_homonym_results = Towelie::View.to_ruby(@test_data_analysis.homonyms)
+    classes_modules_homonym_results = Towelie::View.to_ruby(@classes_modules_analysis.homonyms)
     @homonym_block.each do |method|
       test_data_homonym_results.should match %r[#{Regexp.escape(method)}]
       classes_modules_homonym_results.should match %r[#{Regexp.escape(method)}]
     end
   end
+  
   it "reports methods which differ only by one node" do
-    parse("spec/one_node_diff")
-    one_node_diff_results = to_ruby(diff(1))
+    diff_analysis = Towelie::Analyzer.new("spec/one_node_diff")
+    one_node_diff_results = Towelie::View.to_ruby(diff_analysis.diff(1))
     @one_node_diff_block.each do |method|
       one_node_diff_results.should match %r[#{Regexp.escape(method)}]
     end
-    parse("spec/larger_one_node_diff")
-    larger_one_node_diff_results = to_ruby(diff(1))
+    larger_analysis = Towelie::Analyzer.new("spec/larger_one_node_diff")
+    larger_one_node_diff_results = Towelie::View.to_ruby(larger_analysis.diff(1))
     @bigger_one_node_diff_block.each do |method|
       larger_one_node_diff_results.should match %r[#{Regexp.escape(method)}]
     end
   end
+  
   it "reports methods which differ by arbitrary numbers of nodes" do
-    parse("spec/two_node_diff")
-    @method_definitions.should_not be_empty
-    two_node_diff_results = to_ruby(diff(2))
+    analysis = Towelie::Analyzer.new("spec/two_node_diff")
+    analysis.method_definitions.should_not be_empty
+    two_node_diff_results = Towelie::View.to_ruby(analysis.diff(2))
     @two_node_diff_block.each do |method|
       two_node_diff_results.should match %r[#{Regexp.escape(method)}]
     end
   end
+  
   it "attaches filenames to individual nodes" do
-    parse("spec/two_node_diff")
-    @method_definitions[0].filename.should == File.expand_path("spec/two_node_diff/first_file.rb")
+    analysis = Towelie::Analyzer.new("spec/two_node_diff")
+    analysis.method_definitions[0].filename.should == File.expand_path("spec/two_node_diff/first_file.rb")
+  end
+  
+  after(:each) do
+    @the_nodes, @duplicated_block, @unique_block, @homonym_block, @one_node_diff_block, @bigger_one_node_diff_block, 
+      @two_node_diff_block, @test_data_analysis, @classes_modules_analysis = nil
   end
 end

@@ -4,8 +4,8 @@ README.rdoc
 Rakefile
 bin/towelie
 lib/towelie.rb
-lib/towelie/array.rb
-lib/towelie/code_base.rb
+lib/towelie/analyzer.rb
+lib/towelie/array_ext.rb
 lib/towelie/node_analysis.rb
 lib/towelie/view.rb
 spec/array_spec.rb

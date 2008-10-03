@@ -1,20 +1,23 @@
-require 'pp'
+require "#{Towelie::LIBPATH}towelie/node_analysis"
+
 module Towelie
-  class CodeBase < SexpProcessor
+  class Analyzer < SexpProcessor
     include UnifiedRuby
+    include Towelie::NodeAnalysis
     
-    attr_reader :method_definitions
+    attr_reader :method_definitions, :dir
     
-    def initialize
-      super
+    def initialize(dir)
+      super()
+      @dir = File.expand_path(dir)
       self.auto_shift_type = true
       @pt = ParseTree.new(false)
       @method_definitions = []
+      extract_definitions
     end
     
-    def extract_definitions(dir)
-      dir = File.expand_path(dir)
-      Find.find(*Dir["#{dir}/**/*.rb"]) do |filename|
+    def extract_definitions
+      Find.find(*Dir["#{self.dir}/**/*.rb"]) do |filename|
         if File.file? filename
           @current_filename = filename
           sexp = @pt.parse_tree_for_string(File.read(filename), filename)

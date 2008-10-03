@@ -1,35 +1,41 @@
+require 'pp'
 module Towelie
-  module CodeBase
-    def parse(dir)
+  class CodeBase < SexpProcessor
+    include UnifiedRuby
+    
+    attr_reader :method_definitions
+    
+    def initialize
+      super
+      self.auto_shift_type = true
+      @pt = ParseTree.new(false)
       @method_definitions = []
+    end
+    
+    def extract_definitions(dir)
       dir = File.expand_path(dir)
       Find.find(*Dir["#{dir}/**/*.rb"]) do |filename|
-        extract_definitions(@method_definitions, (ParseTree.translate File.read(filename)), filename)
-      end
-    end
-    def extract_definitions(accumulator, nodes, filename)
-      case nodes
-      when Array
-        if nodes[0] == :defn
-          accumulator << nodes
-          nodes.instance_eval <<-ACCESSORS
-            def name
-              self[1]
-            end
-            def body
-              self[2]
-            end
-            def filename
-              "#{filename}"
-            end
-          ACCESSORS
-        else
-          nodes.each {|node| extract_definitions(accumulator, node, filename)}
+        if File.file? filename
+          @current_filename = filename
+          sexp = @pt.parse_tree_for_string(File.read(filename), filename)
+          process Sexp.from_array(sexp).first
         end
       end
-      accumulator
+      @method_definitions
     end
+  
+    def process_defn(exp)
+      method = OpenStruct.new
+      method.name = exp.shift
+      method.args = process exp.shift
+      method.body = process exp.shift
+      method.node = s(:defn, method.name, method.args, method.body)
+      method.filename = File.expand_path(@current_filename)
+      
+      @method_definitions << method
+      
+      s(:defn, method.name, method.args, method.body)
+    end
+    
   end
 end
-
-Towelie.send :include, Towelie::CodeBase

@@ -6,23 +6,23 @@ describe Towelie do
   before(:all) do
     @the_nodes = [
                   # second_file.rb
-                  [:defn, :foo,
+                  [:defn, :foo, [:args],
                     [:scope,
-                      [:block, [:args], [:str, "still unique"]]]],
-                  [:defn, :bar,
+                      [:block, [:str, "still unique"]]]],
+                  [:defn, :bar, [:args],
                     [:scope,
-                      [:block, [:args], [:str, "something non-unique"]]]],
-                  [:defn, :baz,
+                      [:block, [:str, "something non-unique"]]]],
+                  [:defn, :baz, [:args],
                     [:scope,
-                      [:block, [:args], [:str, "also unique"]]]],
+                      [:block, [:str, "also unique"]]]],
 
                   # first_file.rb
-                  [:defn, :foo,
+                  [:defn, :foo, [:args],
                     [:scope,
-                      [:block, [:args], [:str, "something unique"]]]],
-                  [:defn, :bar,
+                      [:block, [:str, "something unique"]]]],
+                  [:defn, :bar, [:args],
                     [:scope,
-                      [:block, [:args], [:str, "something non-unique"]]]]
+                      [:block, [:str, "something non-unique"]]]]
                  ]
     
     @duplicated_block =<<DUPLICATE_BLOCK
@@ -45,12 +45,12 @@ end'
     ]
     
     @homonym_block = [
-`def foo
+'def foo
   "still unique"
-end`,
-`def foo
+end',
+'def foo
   "something unique"
-end`
+end'
     ]
 
     @one_node_diff_block = [
@@ -94,11 +94,13 @@ end'
   end
   it "extracts :defn nodes" do
     parse("spec/test_data")
-    @method_definitions.should include @the_nodes[0]
-    @method_definitions.should include @the_nodes[1]
+    method_arrays = @method_definitions.map {|mdef| mdef.node.to_a}
+    method_arrays.should include @the_nodes[0]
+    method_arrays.should include @the_nodes[1]
     parse("spec/classes_modules")
-    @method_definitions.should include @the_nodes[0]
-    @method_definitions.should include @the_nodes[1]
+    method_arrays = @method_definitions.map {|mdef| mdef.node.to_a}
+    method_arrays.should include @the_nodes[0]
+    method_arrays.should include @the_nodes[1]
   end
   it "isolates duplicated blocks" do
     to_ruby(duplicated("spec/test_data")).should == @duplicated_block

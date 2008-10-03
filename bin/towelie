@@ -1,8 +1,61 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
+require 'ostruct'
 require File.expand_path(
     File.join(File.dirname(__FILE__), '..', 'lib', 'towelie'))
 
-# Put your code here
+class Towelie::CLI
+  def self.parse(args)
+    options = OpenStruct.new
+    opts = OptionParser.new do |opts|
+      opts.banner = "Usage: towelie [options] directory"
+      
+      opts.separator ""
+      opts.separator "Options:"
+      
+      opts.on('-t', "--threshold [N]", Integer, "The number of node differences to print methods for.") do |n|
+        options.threshold = n
+      end
+      
+      opts.separator ""
+      
+      opts.on_tail("-h", "--help", "Show this message") do
+        puts opts
+        exit
+      end
 
-# EOF
+      opts.on_tail("--version", "Show version") do
+        puts "#{program_name} #{Towelie::Version}"
+        exit
+      end
+    end
+    
+    opts.parse!(ARGV)
+    if ARGV.length < 1
+      puts "ERROR: Missing expected arguments. ou must specify a directory parameter."
+      puts
+      puts opts.help
+      exit
+    elsif ARGV.length > 1
+      puts "ERROR: Too many arguments. Only a directory is needed."
+      puts
+      puts opts.help
+      exit
+    else
+      options.dir = ARGV.shift
+    end
+    
+    options
+  end
+  
+  def self.run(args)
+    options = parse(args)
+    towel = Towelie.new
+    duplicates = Towelie.duplicated
+    puts duplicates
+  end
+end
+
+Towelie::CLI.run(ARGV)
+

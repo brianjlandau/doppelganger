@@ -8,15 +8,19 @@ module Towelie
       method_nodes = @method_definitions.map(&:body)
       (@method_definitions.inject([]) do |duplicate_defs, method_def|
         node = method_def.body
-        if method_nodes.duplicates?(node) && !duplicate_defs.map(&:body).include?(node)
-          duplicate_defs << method_def
+        if method_nodes.duplicates?(node)
+          if duplicate_defs.map{|mdef| mdef.first.body}.include?(node)
+            duplicate_defs.find{|mdef| mdef.first.body == node } << method_def
+          else
+            duplicate_defs << [method_def]
+          end
         end
         duplicate_defs
       end).compact.uniq
     end
     
     def unique
-      @method_definitions - duplicates
+      @method_definitions - duplicates.map(&:first)
     end
     
     def homonyms
@@ -30,14 +34,15 @@ module Towelie
     end
     
     def diff(threshold)
-      diff_nodes = []
+      diff_methods = []
       stepwise_mdefs do |method_definition_1, method_definition_2|
         if threshold >= (method_definition_1.body - method_definition_2.body).size
-          diff_nodes << method_definition_1
-          # note this hash approach fails to record multiple one-node-diff methods with the same name
+          unless diffed_methods_recorded?(diff_methods, method_definition_1, method_definition_2)
+            diff_methods << [method_definition_1, method_definition_2]
+          end
         end
       end
-      diff_nodes
+      diff_methods
     end
     
     protected
@@ -47,6 +52,13 @@ module Towelie
             next if element1.body == element2.body
             yield element1, element2
           end
+        end
+      end
+      
+      def diffed_methods_recorded?(diff_methods, mdef1, mdef2)
+        diff_methods.any? do |method_pair|
+          method_pair_nodes = method_pair.map(&:node)
+          method_pair_nodes.include?(mdef1.node) || method_pair_nodes.include?(mdef2.node)
         end
       end
   end

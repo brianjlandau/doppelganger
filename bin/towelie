@@ -2,8 +2,7 @@
 
 require 'optparse'
 require 'ostruct'
-require File.expand_path(
-    File.join(File.dirname(__FILE__), '..', 'lib', 'towelie'))
+require File.expand_path( File.join(File.dirname(__FILE__), '..', 'lib', 'towelie') )
 
 class Towelie::CLI
   def self.parse(args)
@@ -46,13 +45,38 @@ class Towelie::CLI
       options.dir = ARGV.shift
     end
     
-    options
+    @options = options
+    @root_path = File.expand_path(@options.dir)
   end
   
   def self.run(args)
-    options = parse(args)
-    towel = Towelie::Analyzer.new(options.dir)
-    duplicates = Towelie.duplicates
+    parse(args)
+    @towel = Towelie::Analyzer.new(@options.dir)
+    
+    duplicates = @towel.duplicates
+    display_method_sets duplicates, "DUPLICATES:\n", 'Duplicated Method Set:'
+    
+    if @options.threshold
+      similar_methods = @towel.diff(@options.threshold)
+      display_method_sets similar_methods, "MAX DIFF of #{@options.threshold} NODES:\n", 'Similar Method Pair:'
+    end
+  end
+  
+  def self.display_method_sets(set, title, set_title)
+    unless set.empty?
+      puts title
+      set.each do |mdef_set|
+        puts set_title
+        mdef_set.each do |mdef|
+          display_filename_and_method_name(mdef)
+        end
+      end
+      puts
+    end
+  end
+  
+  def self.display_filename_and_method_name(method_definition)
+    puts "   [#{method_definition.filename.gsub(@root_path, '.')}]   =>   `#{method_definition.name}`"
   end
 end
 

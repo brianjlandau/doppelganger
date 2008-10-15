@@ -106,8 +106,8 @@ end'
   end
   
   it "isolates duplicated blocks" do
-    Towelie::View.to_ruby(@test_data_analysis.duplicates).should == @duplicated_block
-    Towelie::View.to_ruby(@classes_modules_analysis.duplicates).should == @duplicated_block
+    Towelie::View.to_ruby(@test_data_analysis.duplicates.map(&:first)).should == @duplicated_block
+    Towelie::View.to_ruby(@classes_modules_analysis.duplicates.map(&:first)).should == @duplicated_block
   end
   
   it "reports unique code" do
@@ -130,12 +130,12 @@ end'
   
   it "reports methods which differ only by one node" do
     diff_analysis = Towelie::Analyzer.new("spec/one_node_diff")
-    one_node_diff_results = Towelie::View.to_ruby(diff_analysis.diff(1))
+    one_node_diff_results = Towelie::View.to_ruby(diff_analysis.diff(1).first)
     @one_node_diff_block.each do |method|
       one_node_diff_results.should match %r[#{Regexp.escape(method)}]
     end
     larger_analysis = Towelie::Analyzer.new("spec/larger_one_node_diff")
-    larger_one_node_diff_results = Towelie::View.to_ruby(larger_analysis.diff(1))
+    larger_one_node_diff_results = Towelie::View.to_ruby(larger_analysis.diff(1).first)
     @bigger_one_node_diff_block.each do |method|
       larger_one_node_diff_results.should match %r[#{Regexp.escape(method)}]
     end
@@ -144,7 +144,7 @@ end'
   it "reports methods which differ by arbitrary numbers of nodes" do
     analysis = Towelie::Analyzer.new("spec/two_node_diff")
     analysis.method_definitions.should_not be_empty
-    two_node_diff_results = Towelie::View.to_ruby(analysis.diff(2))
+    two_node_diff_results = Towelie::View.to_ruby(analysis.diff(2).first)
     @two_node_diff_block.each do |method|
       two_node_diff_results.should match %r[#{Regexp.escape(method)}]
     end

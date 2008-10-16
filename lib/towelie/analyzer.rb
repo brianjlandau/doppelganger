@@ -1,5 +1,7 @@
 require "#{Towelie::LIBPATH}towelie/node_analysis"
 
+MethodDef = Struct.new(:name, :args, :body, :node, :filename)
+
 module Towelie
   class Analyzer < SexpProcessor
     include UnifiedRuby
@@ -28,7 +30,7 @@ module Towelie
     end
   
     def process_defn(exp)
-      method = OpenStruct.new
+      method = MethodDef.new
       method.name = exp.shift
       method.args = process exp.shift
       method.body = process exp.shift

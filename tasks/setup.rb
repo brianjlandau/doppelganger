@@ -31,6 +31,7 @@ PROJ = OpenStruct.new(
   # Gem Packaging
   :gem => OpenStruct.new(
     :dependencies => [],
+    :development_dependencies => [],
     :executables => nil,
     :extensions => FileList['ext/**/extconf.rb'],
     :files => nil,
@@ -79,8 +80,10 @@ PROJ = OpenStruct.new(
 )
 
 # Load the other rake files in the tasks folder
-rakefiles = Dir.glob('tasks/*.rake').sort
-rakefiles.unshift(rakefiles.delete('tasks/post_load.rake')).compact!
+tasks_dir = File.expand_path(File.dirname(__FILE__))
+post_load_fn = File.join(tasks_dir, 'post_load.rake')
+rakefiles = Dir.glob(File.join(tasks_dir, '*.rake')).sort
+rakefiles.unshift(rakefiles.delete(post_load_fn)).compact!
 import(*rakefiles)
 
 # Setup the project libraries

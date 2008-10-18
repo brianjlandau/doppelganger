@@ -2,7 +2,7 @@
 
 require 'optparse'
 require 'ostruct'
-require File.expand_path( File.join(File.dirname(__FILE__), '..', 'lib', 'towelie') )
+require File.expand_path( File.join(File.dirname(__FILE__), %w[.. lib <%= name %>]) )
 
 class Towelie::CLI
   def self.parse(args)

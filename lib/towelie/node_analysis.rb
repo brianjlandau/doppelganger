@@ -36,7 +36,7 @@ module Towelie
     def diff(threshold)
       diff_methods = []
       stepwise_mdefs do |method_definition_1, method_definition_2|
-        if threshold >= (method_definition_1.body - method_definition_2.body).size
+        if threshold >= Diff::LCS.diff(method_definition_1.flat_body_array, method_definition_2.flat_body_array).size
           unless diffed_methods_recorded?(diff_methods, method_definition_1, method_definition_2)
             diff_methods << [method_definition_1, method_definition_2]
           end
@@ -47,8 +47,8 @@ module Towelie
     
     protected
       def stepwise_mdefs
-        @method_definitions.each do |element1|
-          @method_definitions.each do |element2|
+        @method_definitions.dup.each do |element1|
+          @method_definitions.dup.each do |element2|
             next if element1.body == element2.body
             yield element1, element2
           end
@@ -58,7 +58,7 @@ module Towelie
       def diffed_methods_recorded?(diff_methods, mdef1, mdef2)
         diff_methods.any? do |method_pair|
           method_pair_nodes = method_pair.map(&:node)
-          method_pair_nodes.include?(mdef1.node) || method_pair_nodes.include?(mdef2.node)
+          method_pair_nodes.include?(mdef1.node) && method_pair_nodes.include?(mdef2.node)
         end
       end
   end

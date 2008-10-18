@@ -1,5 +1,6 @@
 require 'lib/towelie'
 
+
 describe Towelie do
   before(:each) do
     @the_nodes = [
@@ -60,14 +61,16 @@ end',
 end'
     ]
 
-    @bigger_one_node_diff_block = [
-'def bar
-  puts("muppetfuckers")
-  @variable = "bar"
-end',
+    @bigger_diff_blocks = [
 'def foo
   puts("muppetfuckers")
   @variable = "foo"
+  ["this", "is", "some", "words"].each { |word| word.size }
+end',
+'def bar
+  puts("muppetfuckers")
+  ["this", "is", "bad", "words"].each { |word| puts(word) }
+  @variable = "bar"
 end'
     ]
 
@@ -134,11 +137,6 @@ end'
     @one_node_diff_block.each do |method|
       one_node_diff_results.should match %r[#{Regexp.escape(method)}]
     end
-    larger_analysis = Towelie::Analyzer.new("spec/larger_one_node_diff")
-    larger_one_node_diff_results = Towelie::View.to_ruby(larger_analysis.diff(1).first)
-    @bigger_one_node_diff_block.each do |method|
-      larger_one_node_diff_results.should match %r[#{Regexp.escape(method)}]
-    end
   end
   
   it "reports methods which differ by arbitrary numbers of nodes" do
@@ -147,6 +145,15 @@ end'
     two_node_diff_results = Towelie::View.to_ruby(analysis.diff(2).first)
     @two_node_diff_block.each do |method|
       two_node_diff_results.should match %r[#{Regexp.escape(method)}]
+    end
+  end
+  
+  it "reports larger methods with larger number of diffs" do
+    larger_analysis = Towelie::Analyzer.new("spec/larger_diff")
+    diff = larger_analysis.diff(5)
+    larger_diff_results = Towelie::View.to_ruby(diff.first)
+    @bigger_diff_blocks.each do |method|
+      larger_diff_results.should match %r[#{Regexp.escape(method)}]
     end
   end
   

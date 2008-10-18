@@ -1,6 +1,8 @@
 require 'find'
 require 'parse_tree'
 require 'ruby2ruby'
+require 'diff/lcs'
+require 'diff/lcs/array'
 
 # Equivalent to a header guard in C/C++
 # Used to prevent the class/module from being loaded more than once

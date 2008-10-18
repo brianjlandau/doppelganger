@@ -1,6 +1,6 @@
 require "#{Towelie::LIBPATH}towelie/node_analysis"
 
-MethodDef = Struct.new(:name, :args, :body, :node, :filename)
+MethodDef = Struct.new(:name, :args, :body, :node, :filename, :flat_body_array)
 
 module Towelie
   class Analyzer < SexpProcessor
@@ -34,6 +34,7 @@ module Towelie
       method.name = exp.shift
       method.args = process exp.shift
       method.body = process exp.shift
+      method.flat_body_array = method.body.to_a.flatten
       method.node = s(:defn, method.name, method.args, method.body)
       method.filename = File.expand_path(@current_filename)
       

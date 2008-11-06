@@ -1,3 +1,8 @@
+== 0.2.0 / 2008-11-06
+
+* Add percent different functionality.
+* Name change to Doppelganger
+
 == 0.1.0 / 2008-10-01
 
 * Initial conversion to a gem

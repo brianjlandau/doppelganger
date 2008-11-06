@@ -10,12 +10,14 @@ require 'doppelganger'
 task :default => 'spec:run'
 
 PROJ.name = 'doppelganger'
-PROJ.authors = 'Brian Landau, Giles Bowkett'
-PROJ.email = ''
+PROJ.authors = 'Brian Landau'
+PROJ.email = 'brian.landau@viget.com'
 PROJ.url = 'http://github.com/brianjlandau/doppelganger'
+PROJ.version = Doppelganger::VERSION
+PROJ.rdoc.include << 'LICENSE'
 
 PROJ.spec.opts << '--color --format specdoc --diff'
 
-%W(parse_tree ruby2ruby diff-lcs).each  do |gem|
+%W(parse_tree ruby2ruby diff-lcs sexp_processor).each  do |gem|
   depend_on gem
 end

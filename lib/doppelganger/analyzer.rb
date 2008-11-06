@@ -3,6 +3,9 @@ require "#{Doppelganger::LIBPATH}doppelganger/node_analysis"
 MethodDef = Struct.new(:name, :args, :body, :node, :filename, :flat_body_array)
 
 module Doppelganger
+  # This class goes through all the ruby files in a directory and parses it into Sexp's.
+  # It then exracts the definitions and stores them all and then includes the NodeAnalysis module
+  # with allows a number of comparisons.
   class Analyzer < SexpProcessor
     include UnifiedRuby
     include Doppelganger::NodeAnalysis
@@ -18,6 +21,8 @@ module Doppelganger
       extract_definitions
     end
     
+    # This does throw all the files in the directory and parses them extracting all the
+    # method definitions.
     def extract_definitions
       Find.find(*Dir["#{self.dir}/**/*.rb"]) do |filename|
         if File.file? filename
@@ -28,7 +33,9 @@ module Doppelganger
       end
       @method_definitions
     end
-  
+    
+    # When ever a <tt>defn</tt> node is enountered this is method is called and used
+    # to process it. It extracts the method definition into our collection of methods.
     def process_defn(exp)
       method = MethodDef.new
       method.name = exp.shift

@@ -121,15 +121,6 @@ end'
     end
   end
   
-  it "reports distinct methods with the same name" do
-    test_data_homonym_results = Doppelganger::View.to_ruby(@test_data_analysis.homonyms)
-    classes_modules_homonym_results = Doppelganger::View.to_ruby(@classes_modules_analysis.homonyms)
-    @homonym_block.each do |method|
-      test_data_homonym_results.should match %r[#{Regexp.escape(method)}]
-      classes_modules_homonym_results.should match %r[#{Regexp.escape(method)}]
-    end
-  end
-  
   it "reports methods which differ only by one node" do
     diff_analysis = Doppelganger::Analyzer.new("spec/one_node_diff")
     one_node_diff_results = Doppelganger::View.to_ruby(diff_analysis.diff(1).first)

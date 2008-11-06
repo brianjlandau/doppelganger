@@ -2,6 +2,7 @@ class Array
   def duplicates?(element)
     grep(element).size > 1 
   end
+  
   def stepwise(compare_method)
     self.each do |element1|
       self.each do |element2|
@@ -10,6 +11,7 @@ class Array
       end
     end
   end
+  
   def comparing_collect
     accumulator = [] # collect implementation copied from Rubinius
     stepwise do |element1, element2|

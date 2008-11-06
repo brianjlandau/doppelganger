@@ -14,7 +14,6 @@ module Doppelganger
   VERSION = '0.2.0'.freeze
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
-  # :startdoc:
 
   # Returns the version string for the library.
   #
@@ -50,7 +49,8 @@ module Doppelganger
 
     Dir.glob(search_me).sort.each {|rb| require rb}
   end
-
+  # :startdoc:
+  
 end  # module Doppelganger
 
 Doppelganger.require_all_libs_relative_to __FILE__

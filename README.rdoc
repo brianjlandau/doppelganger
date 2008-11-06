@@ -1,19 +1,52 @@
-doppelganger
-    by Brian Landau
-    FIXME (url)
+= Doppelganger
+
+by Brian Landau of Viget Labs <brian.landau@viget.com>
+
+GitHub Project: http://github.com/brianjlandau/doppelganger
+
 
 == DESCRIPTION:
 
-FIXME (describe your package)
+Doppelganger helps you to find areas of your code that are good places to refactor.
+It does this by finding methods that are duplicates or similar at specified threshold level.
+This library can either be used with in another larger code metric/heuristic library, or
+called from the command line.
+
 
 == FEATURES/PROBLEMS:
 
-* FIXME (list of features or problems)
+* Find duplicate methods.
+* Find methods similar by a threshold level of difference.
+* Find methods similar by threshold percentage.
+* Uses the Diff::LCS library for finding differences.
+* Uses ParseTree to compare methods.
+* Outputs the set of similar/duplicate methods together and what files they are in.
 
-== SYNOPSIS:
 
-  FIXME (code sample of usage)
+== REQUIREMENTS:
 
+* ParseTree
+* Diff::LCS
+* sexp_processor
+
+
+== USAGE:
+
+Find duplicates and methods have 5 or less differences.
+
+   $ doppelganger -n 5 project_dir/lib
+
+Find duplicates and methods that are 10 percent different or less.
+
+   $ doppelganger -p 10 project_dir/lib
+
+
+== INSTALL:
+
+   sudo gem install doppelganger
+
+
+=== CREDITS:
 
 Inspired and based of of Giles Bowkett's Towelie
 

@@ -1,9 +1,16 @@
 module Doppelganger
+  # This handles the analysis of the method definitions.
+  # This will use various iterators to compare all the diffent methods in your code base
+  # and find similar or duplicate methods. It will also display unique methods.
   module NodeAnalysis
+    
+    # Are there any duplicates in the code base.
     def duplication?
       not duplicates.empty?
     end
     
+    # Finds methods that are exact duplicates, node for node. All duplicate methods
+    # are grouped together.
     def duplicates
       method_nodes = @method_definitions.map(&:body)
       (@method_definitions.inject([]) do |duplicate_defs, method_def|
@@ -19,20 +26,12 @@ module Doppelganger
       end).compact.uniq
     end
     
+    # Reports methods that have no duplicates
     def unique
       @method_definitions - duplicates.map(&:first)
     end
     
-    def homonyms
-      homonyms = []
-      # this picks up duplicates as well as homonyms, since a duplicate is technically also a homonym;
-      # and I should probably run .uniq on it also.
-      stepwise_mdefs do |method_definition_1, method_definition_2|
-        homonyms << method_definition_1 if method_definition_1.name == method_definition_2.name
-      end
-      homonyms
-    end
-    
+    # Finds method that differ from another method by the threshold or less, but are not duplicates.
     def diff(threshold)
       diff_methods = []
       stepwise_mdefs do |method_definition_1, method_definition_2|
@@ -45,13 +44,13 @@ module Doppelganger
       diff_methods
     end
     
-    # To calculate the percentage we can do this in one of two ways we can compare
-    # total differences (the diff set flattened) over the total nodes (the flattened bodies added)
-    # or we can compare the number of change sets (the size of the diff) over the average number of nodes
-    # in the two methods.
-    # Not sure which is best but I've gone with the former for now.
-    #
+    # Finds methods that differ by a given threshold percentage or less, but are not duplicates.
     def percent_diff(percentage)
+      # To calculate the percentage we can do this in one of two ways we can compare
+      # total differences (the diff set flattened) over the total nodes (the flattened bodies added)
+      # or we can compare the number of change sets (the size of the diff) over the average number of nodes
+      # in the two methods.
+      # Not sure which is best but I've gone with the former for now.
       diff_methods = []
       stepwise_mdefs do |method_definition_1, method_definition_2|
         total_nodes = method_definition_1.flat_body_array.size + method_definition_2.flat_body_array.size

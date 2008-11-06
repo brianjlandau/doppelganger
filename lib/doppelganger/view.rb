@@ -1,4 +1,4 @@
-module Towelie
+module Doppelganger
   class View
     def self.to_ruby(nodes)
       nodes.dup.inject("") do |string, method_def|

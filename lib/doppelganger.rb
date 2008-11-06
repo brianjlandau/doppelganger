@@ -6,12 +6,12 @@ require 'diff/lcs/array'
 
 # Equivalent to a header guard in C/C++
 # Used to prevent the class/module from being loaded more than once
-unless defined? Towelie
+unless defined? Doppelganger
 
-module Towelie
+module Doppelganger
   
   # :stopdoc:
-  VERSION = '1.0.0'
+  VERSION = '0.2.0'.freeze
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   # :startdoc:
@@ -51,18 +51,9 @@ module Towelie
     Dir.glob(search_me).sort.each {|rb| require rb}
   end
 
-end  # module Towelie
+end  # module Doppelganger
 
-Towelie.require_all_libs_relative_to __FILE__
+Doppelganger.require_all_libs_relative_to __FILE__
 
 end  # unless defined?
 
-
-# most methods need a dir loaded. therefore we should have an object which takes a dir (and probably
-# loads it) on init. also a new Ruby2Ruby might belong in the initializer, who knows.
-
-# ironically, Towelie itself is very not-DRY. lots of "parse dir".
-
-# one thing I've been doing consistently is parsing the dir and collecting the method definitions.
-# further, everything here assumes that this has happened. therefore! I think I should write some
-# code which *ensures* it always happens.

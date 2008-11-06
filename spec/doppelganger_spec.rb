@@ -1,7 +1,6 @@
-require 'lib/towelie'
+require 'lib/doppelganger'
 
-
-describe Towelie do
+describe Doppelganger do
   before(:each) do
     @the_nodes = [
                   # second_file.rb
@@ -85,8 +84,8 @@ end',
 end'
     ]
     
-    @test_data_analysis = Towelie::Analyzer.new("spec/test_data")
-    @classes_modules_analysis = Towelie::Analyzer.new("spec/classes_modules")
+    @test_data_analysis = Doppelganger::Analyzer.new("spec/test_data")
+    @classes_modules_analysis = Doppelganger::Analyzer.new("spec/classes_modules")
   end
   
   it "identifies duplication" do
@@ -95,7 +94,7 @@ end'
   end
   
   it "returns no false positives when identifying duplication" do
-    analysis = Towelie::Analyzer.new("spec/non_duplicating_data")
+    analysis = Doppelganger::Analyzer.new("spec/non_duplicating_data")
     analysis.duplication?.should be_false
   end
   
@@ -109,13 +108,13 @@ end'
   end
   
   it "isolates duplicated blocks" do
-    Towelie::View.to_ruby(@test_data_analysis.duplicates.map(&:first)).should == @duplicated_block
-    Towelie::View.to_ruby(@classes_modules_analysis.duplicates.map(&:first)).should == @duplicated_block
+    Doppelganger::View.to_ruby(@test_data_analysis.duplicates.map(&:first)).should == @duplicated_block
+    Doppelganger::View.to_ruby(@classes_modules_analysis.duplicates.map(&:first)).should == @duplicated_block
   end
   
   it "reports unique code" do
-    test_data_unique_results = Towelie::View.to_ruby(@test_data_analysis.unique)
-    classes_modules_unique_results = Towelie::View.to_ruby(@classes_modules_analysis.unique)
+    test_data_unique_results = Doppelganger::View.to_ruby(@test_data_analysis.unique)
+    classes_modules_unique_results = Doppelganger::View.to_ruby(@classes_modules_analysis.unique)
     @unique_block.each do |method|
       test_data_unique_results.should match %r[#{Regexp.escape(method)}]
       classes_modules_unique_results.should match %r[#{Regexp.escape(method)}]
@@ -123,8 +122,8 @@ end'
   end
   
   it "reports distinct methods with the same name" do
-    test_data_homonym_results = Towelie::View.to_ruby(@test_data_analysis.homonyms)
-    classes_modules_homonym_results = Towelie::View.to_ruby(@classes_modules_analysis.homonyms)
+    test_data_homonym_results = Doppelganger::View.to_ruby(@test_data_analysis.homonyms)
+    classes_modules_homonym_results = Doppelganger::View.to_ruby(@classes_modules_analysis.homonyms)
     @homonym_block.each do |method|
       test_data_homonym_results.should match %r[#{Regexp.escape(method)}]
       classes_modules_homonym_results.should match %r[#{Regexp.escape(method)}]
@@ -132,33 +131,42 @@ end'
   end
   
   it "reports methods which differ only by one node" do
-    diff_analysis = Towelie::Analyzer.new("spec/one_node_diff")
-    one_node_diff_results = Towelie::View.to_ruby(diff_analysis.diff(1).first)
+    diff_analysis = Doppelganger::Analyzer.new("spec/one_node_diff")
+    one_node_diff_results = Doppelganger::View.to_ruby(diff_analysis.diff(1).first)
     @one_node_diff_block.each do |method|
       one_node_diff_results.should match %r[#{Regexp.escape(method)}]
     end
   end
   
   it "reports methods which differ by arbitrary numbers of nodes" do
-    analysis = Towelie::Analyzer.new("spec/two_node_diff")
+    analysis = Doppelganger::Analyzer.new("spec/two_node_diff")
     analysis.method_definitions.should_not be_empty
-    two_node_diff_results = Towelie::View.to_ruby(analysis.diff(2).first)
+    two_node_diff_results = Doppelganger::View.to_ruby(analysis.diff(2).first)
     @two_node_diff_block.each do |method|
       two_node_diff_results.should match %r[#{Regexp.escape(method)}]
     end
   end
   
   it "reports larger methods with larger number of diffs" do
-    larger_analysis = Towelie::Analyzer.new("spec/larger_diff")
+    larger_analysis = Doppelganger::Analyzer.new("spec/larger_diff")
     diff = larger_analysis.diff(5)
-    larger_diff_results = Towelie::View.to_ruby(diff.first)
+    larger_diff_results = Doppelganger::View.to_ruby(diff.first)
     @bigger_diff_blocks.each do |method|
       larger_diff_results.should match %r[#{Regexp.escape(method)}]
     end
   end
   
+  it "reports similar methods by a percent different threshold" do
+    percent_analysis = Doppelganger::Analyzer.new("spec/larger_diff")
+    diff = percent_analysis.percent_diff(25)
+    percent_diff_results = Doppelganger::View.to_ruby(diff.first)
+    @bigger_diff_blocks.each do |method|
+      percent_diff_results.should match %r[#{Regexp.escape(method)}]
+    end
+  end
+  
   it "attaches filenames to individual nodes" do
-    analysis = Towelie::Analyzer.new("spec/two_node_diff")
+    analysis = Doppelganger::Analyzer.new("spec/two_node_diff")
     analysis.method_definitions[0].filename.should == File.expand_path("spec/two_node_diff/first_file.rb")
   end
   

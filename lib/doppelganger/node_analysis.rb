@@ -1,4 +1,4 @@
-module Towelie
+module Doppelganger
   module NodeAnalysis
     def duplication?
       not duplicates.empty?
@@ -37,6 +37,26 @@ module Towelie
       diff_methods = []
       stepwise_mdefs do |method_definition_1, method_definition_2|
         if threshold >= Diff::LCS.diff(method_definition_1.flat_body_array, method_definition_2.flat_body_array).size
+          unless diffed_methods_recorded?(diff_methods, method_definition_1, method_definition_2)
+            diff_methods << [method_definition_1, method_definition_2]
+          end
+        end
+      end
+      diff_methods
+    end
+    
+    # To calculate the percentage we can do this in one of two ways we can compare
+    # total differences (the diff set flattened) over the total nodes (the flattened bodies added)
+    # or we can compare the number of change sets (the size of the diff) over the average number of nodes
+    # in the two methods.
+    # Not sure which is best but I've gone with the former for now.
+    #
+    def percent_diff(percentage)
+      diff_methods = []
+      stepwise_mdefs do |method_definition_1, method_definition_2|
+        total_nodes = method_definition_1.flat_body_array.size + method_definition_2.flat_body_array.size
+        diff_size = Diff::LCS.diff(method_definition_1.flat_body_array, method_definition_2.flat_body_array).flatten.size
+        if percentage >= (diff_size.to_f/total_nodes.to_f * 100)
           unless diffed_methods_recorded?(diff_methods, method_definition_1, method_definition_2)
             diff_methods << [method_definition_1, method_definition_2]
           end

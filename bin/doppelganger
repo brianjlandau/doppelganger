@@ -2,19 +2,23 @@
 
 require 'optparse'
 require 'ostruct'
-require File.expand_path( File.join(File.dirname(__FILE__), %w[.. lib <%= name %>]) )
+require File.expand_path( File.join(File.dirname(__FILE__), %w[.. lib doppelganger]) )
 
-class Towelie::CLI
+class Doppelganger::CLI
   def self.parse(args)
     options = OpenStruct.new
     opts = OptionParser.new do |opts|
-      opts.banner = "Usage: towelie [options] directory"
+      opts.banner = "Usage: doppelganger [options] directory"
       
       opts.separator ""
       opts.separator "Options:"
       
       opts.on('-t', "--threshold [N]", Integer, "The number of node differences to print methods for.") do |n|
         options.threshold = n
+      end
+      
+      opts.on('-p', "--percentage [N]", Integer, "The percent difference to look for in two methods.") do |n|
+        options.percentage = n
       end
       
       opts.separator ""
@@ -25,7 +29,7 @@ class Towelie::CLI
       end
 
       opts.on_tail("--version", "Show version") do
-        puts "#{program_name} #{Towelie::Version}"
+        puts "#{program_name} #{Doppelganger::Version}"
         exit
       end
     end
@@ -51,14 +55,19 @@ class Towelie::CLI
   
   def self.run(args)
     parse(args)
-    @towel = Towelie::Analyzer.new(@options.dir)
+    @doppelganger = Doppelganger::Analyzer.new(@options.dir)
     
-    duplicates = @towel.duplicates
+    duplicates = @doppelganger.duplicates
     display_method_sets duplicates, "DUPLICATES:\n", 'Duplicated Method Set:'
     
     if @options.threshold
-      similar_methods = @towel.diff(@options.threshold)
+      similar_methods = @doppelganger.diff(@options.threshold)
       display_method_sets similar_methods, "MAX DIFF of #{@options.threshold} NODES:\n", 'Similar Method Pair:'
+    end
+    
+    if @options.percentage
+      similar_methods = @doppelganger.percent_diff(@options.percentage)
+      display_method_sets similar_methods, "PERCENT DIFF of #{@options.percentage}%:\n", 'Similar Method Pair:'
     end
   end
   
@@ -80,5 +89,5 @@ class Towelie::CLI
   end
 end
 
-Towelie::CLI.run(ARGV)
+Doppelganger::CLI.run(ARGV)
 

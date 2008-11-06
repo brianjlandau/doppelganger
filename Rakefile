@@ -5,13 +5,17 @@
 load 'tasks/setup.rb'
 
 ensure_in_path 'lib'
-require 'towelie'
+require 'doppelganger'
 
 task :default => 'spec:run'
 
-PROJ.name = 'towelie'
-PROJ.authors = 'Giles Bowkett, Brian Landau'
+PROJ.name = 'doppelganger'
+PROJ.authors = 'Brian Landau, Giles Bowkett'
 PROJ.email = ''
-PROJ.url = 'http://github.com/brianjlandau/towelie'
+PROJ.url = 'http://github.com/brianjlandau/doppelganger'
 
 PROJ.spec.opts << '--color --format specdoc --diff'
+
+%W(parse_tree ruby2ruby diff-lcs).each  do |gem|
+  depend_on gem
+end

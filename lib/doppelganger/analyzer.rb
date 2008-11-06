@@ -1,11 +1,11 @@
-require "#{Towelie::LIBPATH}towelie/node_analysis"
+require "#{Doppelganger::LIBPATH}doppelganger/node_analysis"
 
 MethodDef = Struct.new(:name, :args, :body, :node, :filename, :flat_body_array)
 
-module Towelie
+module Doppelganger
   class Analyzer < SexpProcessor
     include UnifiedRuby
-    include Towelie::NodeAnalysis
+    include Doppelganger::NodeAnalysis
     
     attr_reader :method_definitions, :dir
     

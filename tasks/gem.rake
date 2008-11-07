@@ -97,6 +97,7 @@ namespace :gem do
     s.authors = Array(PROJ.authors)
     s.email = PROJ.email
     s.homepage = Array(PROJ.url).first
+    s.rubyforge_project = PROJ.rubyforge.name
 
     s.description = PROJ.description
 

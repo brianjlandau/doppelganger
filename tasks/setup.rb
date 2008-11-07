@@ -65,10 +65,9 @@ PROJ = OpenStruct.new(
     :remote_dir => nil
   ),
   
-  # Rspec
-  :spec => OpenStruct.new(
-    :files => FileList['spec/**/*_spec.rb'],
-    :opts => []
+  # Rubyforge
+  :rubyforge => OpenStruct.new(
+    :name => "\000"
   ),
   
   # Test::Unit

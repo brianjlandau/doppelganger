@@ -7,7 +7,7 @@ load 'tasks/setup.rb'
 ensure_in_path 'lib'
 require 'doppelganger'
 
-task :default => 'spec:run'
+task :default => 'test:run'
 
 PROJ.name = 'doppelganger'
 PROJ.authors = 'Brian Landau'
@@ -16,7 +16,10 @@ PROJ.url = 'http://github.com/brianjlandau/doppelganger'
 PROJ.version = Doppelganger::VERSION
 PROJ.rdoc.include << 'LICENSE'
 
-PROJ.spec.opts << '--color --format specdoc --diff'
+PROJ.rcov.opts = ['--no-html', '-T', '--sort coverage',
+                  '-x "\/Library\/Ruby\/"', 
+                  '-x "\/opt\/local\/lib/ruby"',
+                  '-x "\/System\/Library\/"']
 
 %W(parse_tree ruby2ruby diff-lcs sexp_processor).each  do |gem|
   depend_on gem

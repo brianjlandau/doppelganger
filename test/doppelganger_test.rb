@@ -35,6 +35,8 @@ class DoppelgangerTest < DoppelgangerTestCase
       end
       assert_contains test_data_duplicate_node_arrays, @the_nodes[1]
       assert_contains classes_modules_duplicate_node_arrays, @the_nodes[1]
+      assert_contains test_data_duplicate_node_arrays, @the_nodes[4]
+      assert_contains classes_modules_duplicate_node_arrays, @the_nodes[4]
     end
     
     should "reports unique code" do
@@ -49,6 +51,14 @@ class DoppelgangerTest < DoppelgangerTestCase
     should "attaches filenames to individual nodes" do
       analysis = Doppelganger::Analyzer.new("test/sample_files/two_node_diff")
       assert_match /first_file\.rb$/, analysis.method_definitions[0].filename
+      assert_match /second_file\.rb$/, analysis.method_definitions[1].filename
+    end
+    
+    should "attaches line numbers to individual nodes" do
+      analysis = Doppelganger::Analyzer.new("test/sample_files/two_node_diff")
+      analysis.method_definitions.each do |mdef|
+        assert_kind_of Integer, mdef.line
+      end
     end
   end
   

@@ -30,14 +30,8 @@ module Doppelganger
     def extract_definitions
       Find.find(*Dir["#{self.dir}/**/*.rb"]) do |filename|
         if File.file? filename
-          @current_filename = filename
           sexp = @pt.process(File.read(filename), filename)
-          sexp = Sexp.from_array(sexp)
-          if (sexp.size == 1) && (sexp.first.is_a? Sexp)
-            process(sexp.first)
-          else
-            process(sexp)
-          end
+          process(sexp)
         end
       end
       @method_definitions
@@ -52,7 +46,7 @@ module Doppelganger
       method.body = process(exp.shift)
       method.flat_body_array = sexp_to_flat_array(method.body)
       method.node = s(:defn, method.name, method.args, method.body)
-      method.filename = exp.file || @current_filename
+      method.filename = exp.file
       method.line = exp.line
       
       @method_definitions << method

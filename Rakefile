@@ -21,6 +21,10 @@ PROJ.rcov.opts = ['--no-html', '-T', '--sort coverage',
                   '-x "\/opt\/local\/lib/ruby"',
                   '-x "\/System\/Library\/"']
 
-%W(parse_tree ruby2ruby diff-lcs sexp_processor).each  do |gem|
-  depend_on gem
-end
+
+PROJ.gem.development_dependencies = [['thoughtbot-shoulda', '~> 2.0']]
+depend_on 'parse_tree', '~> 3.0.0'
+depend_on 'ruby2ruby', '~> 1.1'
+depend_on 'sexp_processor', '~> 3.0.0'
+depend_on 'diff-lcs', '~> 1.1'
+

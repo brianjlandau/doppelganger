@@ -25,7 +25,7 @@ called from the command line.
 
 == REQUIREMENTS:
 
-* ParseTree
+* ruby_parser
 * Diff::LCS
 * sexp_processor
 

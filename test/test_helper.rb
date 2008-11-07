@@ -3,93 +3,72 @@ require 'rubygems'
 require 'shoulda'
 require File.expand_path( File.join(File.dirname(__FILE__), %w[.. lib doppelganger]) )
 
+require 'ruby-debug'
+Debugger.start
+Debugger.settings[:autoeval] = true
+
 
 class DoppelgangerTestCase < Test::Unit::TestCase
   def setup
     @the_nodes = [
       # second_file.rb
-      [:defn, :foo, [:args],
-        [:scope,
-          [:block, [:str, "still unique"]]]],
-      [:defn, :bar, [:args],
-        [:scope,
-          [:block, [:str, "something non-unique"]]]],
-      [:defn, :baz, [:args],
-        [:scope,
-          [:block, [:str, "also unique"]]]],
+      [:defn, :foo, [:args], [:scope, [:block, [:str, "still unique"]]]],
+      [:defn, :bar, [:args], [:scope, [:block, [:str, "something non-unique"]]]],
+      [:defn, :baz, [:args], [:scope, [:block, [:str, "also unique"]]]],
 
       # first_file.rb
-      [:defn, :foo, [:args],
-        [:scope,
-          [:block, [:str, "something unique"]]]],
-      [:defn, :bar, [:args],
-        [:scope,
-          [:block, [:str, "something non-unique"]]]]
+      [:defn, :foo, [:args], [:scope, [:block, [:str, "something unique"]]]],
+      [:defn, :bar, [:args], [:scope, [:block, [:str, "something non-unique"]]]]
     ]
-    
-    @duplicated_block =<<DUPLICATE_BLOCK
-def bar
-  "something non-unique"
-end
-
-DUPLICATE_BLOCK
 
     @unique_block = [
-'def foo
-  "still unique"
-end',
-'def baz
-  "also unique"
-end',
-'def foo
-  "something unique"
-end'
-    ]
-    
-    @homonym_block = [
-'def foo
-  "still unique"
-end',
-'def foo
-  "something unique"
-end'
+      [:defn, :foo, [:args], [:scope, [:block, [:str, "still unique"]]]],
+      [:defn, :baz, [:args], [:scope, [:block, [:str, "also unique"]]]],
+      [:defn, :foo, [:args], [:scope, [:block, [:str, "something unique"]]]]
     ]
 
     @one_node_diff_block = [
-'def bar
-  "bar"
-end',
-'def foo
-  "foo"
-end'
+[:defn, :foo, [:args], [:scope, [:block, [:str, "foo"]]]],
+[:defn, :bar, [:args], [:scope, [:block, [:str, "bar"]]]]
     ]
 
     @bigger_diff_blocks = [
-'def foo
-  puts("muppetfuckers")
-  @variable = "foo"
-  ["this", "is", "some", "words"].each { |word| word.size }
-end',
-'def bar
-  puts("muppetfuckers")
-  ["this", "is", "bad", "words"].each { |word| puts(word) }
-  @variable = "bar"
-end'
+[:defn, :foo, [:args], 
+  [:scope, 
+    [:block, 
+      [:call, nil, :puts, 
+        [:arglist, [:str, "muppetfuckers"]]], 
+        [:iasgn, :@variable, [:str, "foo"]], 
+        [:iter, [:call, 
+          [:array, [:str, "this"], [:str, "is"], [:str, "some"], [:str, "words"]], :each, [:arglist]], 
+          [:lasgn, :word], 
+          [:call, [:lvar, :word], :size, [:arglist]]]]]],
+[:defn, :bar, [:args], 
+  [:scope, [:block, 
+    [:call, nil, :puts, 
+      [:arglist, [:str, "muppetfuckers"]]], 
+      [:iter, [:call, 
+        [:array, [:str, "this"], [:str, "is"], [:str, "bad"], [:str, "words"]], :each, [:arglist]], 
+        [:lasgn, :word], 
+        [:call, nil, :puts, [:arglist, [:lvar, :word]]]], 
+      [:iasgn, :@variable, [:str, "bar"]]]]]
     ]
 
     @two_node_diff_block = [
-'def bar
-  puts("muppetfuckers")
-  @variable = "bar"
-end',
-'def foo
-  puts("muppetphuckers")
-  @variable = "foo"
-end'
+[:defn, :foo, [:args], 
+  [:scope, [:block, 
+    [:call, nil, :puts, 
+      [:arglist, [:str, "muppetphuckers"]]], 
+    [:iasgn, :@variable, [:str, "foo"]]]]],
+[:defn, :bar, [:args], 
+  [:scope, [:block, 
+    [:call, nil, :puts, 
+      [:arglist, [:str, "muppetfuckers"]]], 
+    [:iasgn, :@variable, [:str, "bar"]]]]]
     ]
     
-    @test_data_analysis = Doppelganger::Analyzer.new("test/test_data")
-    @classes_modules_analysis = Doppelganger::Analyzer.new("test/classes_modules")
+    @test_data_analysis = Doppelganger::Analyzer.new("test/sample_files/test_data")
+    @classes_modules_analysis = Doppelganger::Analyzer.new("test/sample_files/classes_modules")
   end
   
   def default_test

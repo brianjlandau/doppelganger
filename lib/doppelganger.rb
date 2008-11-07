@@ -1,6 +1,7 @@
 require 'find'
-require 'parse_tree'
-require 'ruby2ruby'
+require 'sexp_processor'
+require 'unified_ruby'
+require 'ruby_parser'
 require 'diff/lcs'
 require 'diff/lcs/array'
 

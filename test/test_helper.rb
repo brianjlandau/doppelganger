@@ -12,24 +12,17 @@ class DoppelgangerTestCase < Test::Unit::TestCase
   def setup
     @the_nodes = [
       # second_file.rb
-      [:defn, :foo, [:args], [:scope, [:block, [:str, "still unique"]]]],
-      [:defn, :bar, [:args], [:scope, [:block, [:str, "something non-unique"]]]],
-      [:defn, :baz, [:args], [:scope, [:block, [:str, "also unique"]]]],
+      [:defn, :foo, [:args], [:scope, [:block, [:return, [:str, "also not unique"]]]]],
+      [:defn, :baz, [:args], [:scope, [:block, [:or, [:true], [:str, "is unique"]]]]],
 
       # first_file.rb
-      [:defn, :foo, [:args], [:scope, [:block, [:str, "something unique"]]]],
-      [:defn, :bar, [:args], [:scope, [:block, [:str, "something non-unique"]]]]
+      [:defn, :foo, [:args], [:scope, [:block, [:call, nil, :puts, [:arglist, [:lit, :something_unique]]]]]],
+      [:defn, :bar, [:args], [:scope, [:block, [:return, [:str, "something not unique"]]]]]
     ]
 
     @unique_block = [
-      [:defn, :foo, [:args], [:scope, [:block, [:str, "still unique"]]]],
-      [:defn, :baz, [:args], [:scope, [:block, [:str, "also unique"]]]],
-      [:defn, :foo, [:args], [:scope, [:block, [:str, "something unique"]]]]
-    ]
-
-    @one_node_diff_block = [
-[:defn, :foo, [:args], [:scope, [:block, [:str, "foo"]]]],
-[:defn, :bar, [:args], [:scope, [:block, [:str, "bar"]]]]
+      [:defn, :baz, [:args], [:scope, [:block, [:or, [:true], [:str, "is unique"]]]]],
+      [:defn, :foo, [:args], [:scope, [:block, [:call, nil, :puts, [:arglist, [:lit, :something_unique]]]]]]
     ]
 
     @bigger_diff_blocks = [
@@ -53,30 +46,15 @@ class DoppelgangerTestCase < Test::Unit::TestCase
         [:call, nil, :puts, [:arglist, [:lvar, :word]]]], 
       [:iasgn, :@variable, [:str, "bar"]]]]]
     ]
-
-    @two_node_diff_block = [
-[:defn, :foo, [:args], 
-  [:scope, [:block, 
-    [:call, nil, :puts, 
-      [:arglist, [:str, "muppetphuckers"]]], 
-    [:iasgn, :@variable, [:str, "foo"]]]]],
-[:defn, :bar, [:args], 
-  [:scope, [:block, 
-    [:call, nil, :puts, 
-      [:arglist, [:str, "muppetfuckers"]]], 
-    [:iasgn, :@variable, [:str, "bar"]]]]]
-    ]
     
-    @test_data_analysis = Doppelganger::Analyzer.new("test/sample_files/test_data")
-    @classes_modules_analysis = Doppelganger::Analyzer.new("test/sample_files/classes_modules")
+    duplicate_sample_file_path = File.expand_path(File.join(File.dirname(__FILE__), 'sample_files/duplicate_test_data'))
+    @duplicate_analysis = Doppelganger::Analyzer.new(duplicate_sample_file_path)
   end
   
-  def default_test
-  end
+  def default_test; end
   
   def teardown
-    @the_nodes, @duplicated_block, @unique_block, @homonym_block, @one_node_diff_block, @bigger_one_node_diff_block, 
-      @two_node_diff_block, @test_data_analysis, @classes_modules_analysis = nil
+    @the_nodes,  @unique_block, @bigger_diff_blocks, @duplicate_analysis = nil
   end
 end
 

@@ -1,3 +1,3 @@
 def foo
-  "something unique"
+  puts "something unique"
 end

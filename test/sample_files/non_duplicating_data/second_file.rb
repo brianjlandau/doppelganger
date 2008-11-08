@@ -1,7 +1,7 @@
 def foo
-  "still unique"
+  p "still unique"
 end
 
 def bar
-  "also unique"
+  return "also unique"
 end

@@ -12,7 +12,7 @@ module Doppelganger
     # Finds methods that are exact duplicates, node for node. All duplicate methods
     # are grouped together.
     def duplicates
-      method_nodes = @method_definitions.map(&:body)
+      method_nodes = @method_definitions.map{ |mdef| mdef.body.remove_literals }
       (@method_definitions.inject([]) do |duplicate_defs, method_def|
         node = method_def.body.remove_literals
         if method_nodes.duplicates?(node)

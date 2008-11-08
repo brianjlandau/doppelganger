@@ -5,7 +5,8 @@ class DoppelgangerSexpTest < Test::Unit::TestCase
   context 'extended Sexp object' do
     setup do
       @pt = RubyParser.new
-      @sexp = @pt.process(File.read('sample_files/sexp_test_file.rb'), 'sample_files/sexp_test_file.rb')
+      sample_file_path = File.expand_path(File.join(File.dirname(__FILE__), 'sample_files/sexp_test_file.rb'))
+      @sexp = @pt.process(File.read(sample_file_path), sample_file_path)
     end
     
     should 'remove all literal objects' do

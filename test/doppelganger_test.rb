@@ -49,7 +49,12 @@ class DoppelgangerTest < DoppelgangerTestCase
   
     should "report methods which differ by arbitrary numbers of diffs" do
       diff = @larger_diff_analysis.diff(5)
-      larger_diff_results = diff.first.map{|m| m.node.to_a}
+      larger_diff_results = diff.inject([]) do |flattend_diffs, diff_pairs|
+        flattend_diffs << diff_pairs.first.node.to_a
+        flattend_diffs << diff_pairs.last.node.to_a
+        flattend_diffs
+      end
+      
       @bigger_diff_blocks.each do |method_node|
         assert_contains larger_diff_results, method_node
       end
@@ -57,7 +62,12 @@ class DoppelgangerTest < DoppelgangerTestCase
   
     should "report similar methods by a percent different threshold" do
       diff = @larger_diff_analysis.percent_diff(25)
-      percent_diff_results = diff.first.map{|m| m.node.to_a}
+      percent_diff_results = diff.inject([]) do |flattend_diffs, diff_pairs|
+        flattend_diffs << diff_pairs.first.node.to_a
+        flattend_diffs << diff_pairs.last.node.to_a
+        flattend_diffs
+      end
+      
       @bigger_diff_blocks.each do |method_node|
         assert_contains percent_diff_results, method_node
       end

@@ -20,11 +20,6 @@ class DoppelgangerTestCase < Test::Unit::TestCase
       [:defn, :bar, [:args], [:scope, [:block, [:return, [:str, "something not unique"]]]]]
     ]
 
-    @unique_block = [
-      [:defn, :baz, [:args], [:scope, [:block, [:or, [:true], [:str, "is unique"]]]]],
-      [:defn, :foo, [:args], [:scope, [:block, [:call, nil, :puts, [:arglist, [:lit, :something_unique]]]]]]
-    ]
-
     @bigger_diff_blocks = [
 [:defn, :foo, [:args], 
   [:scope, 

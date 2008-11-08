@@ -1,6 +1,6 @@
 class Array
   def duplicates?(element)
-    grep(element).size > 1 
+    (self.select {|elem| elem == element}).size > 1
   end
   
   def stepwise(compare_method)

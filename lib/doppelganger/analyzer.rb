@@ -1,7 +1,7 @@
 require "#{Doppelganger::LIBPATH}doppelganger/node_analysis"
 
 MethodDef = Struct.new(:name, :args, :body, :node, :filename, :line, :flat_body_array)
-BlockNode = Struct.new(:body_nodes, :node, :filename, :line, :flat_body_array)
+BlockNode = Struct.new(:body, :node, :filename, :line, :flat_body_array)
 IterNode = Struct.new(:call_node, :asgn_node, :body, :node, :filename, :line, :flat_body_array)
 
 module Doppelganger
@@ -12,16 +12,14 @@ module Doppelganger
     include UnifiedRuby
     include Doppelganger::NodeAnalysis
     
-    attr_reader :method_definitions, :blocks, :iter_nodes, :dir
+    attr_reader :sexp_blocks, :dir
     
     def initialize(dir)
       super()
       @dir = File.expand_path(dir)
       self.auto_shift_type = true
       @pt = RubyParser.new
-      @method_definitions = []
-      @blocks = []
-      @iter_nodes = []
+      @sexp_blocks = []
       extract_definitions
     end
     
@@ -34,7 +32,7 @@ module Doppelganger
           process(sexp)
         end
       end
-      @method_definitions
+      @sexp_blocks
     end
     
     # When ever a <tt>defn</tt> node is enountered this is method is called and used
@@ -44,27 +42,27 @@ module Doppelganger
       method.name = exp.shift
       method.args = process(exp.shift)
       method.body = process(exp.shift)
-      method.node = s(:defn, method.name, method.args, method.body.dup).freeze
+      method.node = s(:defn, method.name, method.args, method.body.dup)
       method.flat_body_array = method.body.dup.remove_literals.to_flat_ary
       method.filename = exp.file
       method.line = exp.line
       
-      @method_definitions << method
+      @sexp_blocks << method
       method.node
     end
     
     def process_block(exp)
       block_node = BlockNode.new
-      block_node.body_nodes = s()
+      block_node.body = s()
       until (exp.empty?) do
-        block_node.body_nodes << process(exp.shift)
+        block_node.body << process(exp.shift)
       end
-      block_node.node = s(:block, *block_node.body_nodes.dup).freeze
-      block_node.flat_body_array = block_node.body_nodes.dup.remove_literals.to_flat_ary
+      block_node.node = s(:block, *block_node.body.dup)
+      block_node.flat_body_array = block_node.body.dup.remove_literals.to_flat_ary
       block_node.filename = exp.file
       block_node.line = exp.line
       
-      @blocks << block_node
+      @sexp_blocks << block_node
       block_node.node
     end
     
@@ -74,12 +72,12 @@ module Doppelganger
         iter_node.call_node = process(exp.shift)
         iter_node.asgn_node = process(exp.shift)
         iter_node.body = process(exp.shift)
-        iter_node.node = s(:iter, iter_node.call_node, iter_node.asgn_node, iter_node.body.dup).freeze
+        iter_node.node = s(:iter, iter_node.call_node, iter_node.asgn_node, iter_node.body.dup)
         iter_node.flat_body_array = iter_node.body.dup.remove_literals.to_flat_ary
         iter_node.filename = exp.file
         iter_node.line = exp.line
     
-        @iter_nodes << iter_node
+        @sexp_blocks << iter_node
         iter_node.node
       else
         call_node = process(exp.shift)

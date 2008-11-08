@@ -13,7 +13,7 @@ class DoppelgangerTest < DoppelgangerTestCase
     end
     
     should "extract :defn nodes" do
-      method_arrays = @duplicate_analysis.method_definitions.map {|mdef| mdef.node.to_a}
+      method_arrays = @duplicate_analysis.sexp_blocks.map {|mdef| mdef.node.to_a}
       @the_nodes.each do |node|
         assert_contains method_arrays, node
       end
@@ -29,21 +29,14 @@ class DoppelgangerTest < DoppelgangerTestCase
       assert_contains duplicate_node_arrays, @the_nodes[3]
     end
     
-    should "reports unique code" do
-      unique_node_results = @duplicate_analysis.unique.map{|m| m.node.to_a}
-      @unique_block.each do |method_node|
-        assert_contains unique_node_results, method_node
-      end
-    end
-    
     should "attaches filenames to individual nodes" do
-      @duplicate_analysis.method_definitions.each do |mdef|
+      @duplicate_analysis.sexp_blocks.each do |mdef|
         assert_match /\/\w+_file\.rb$/, mdef.filename
       end
     end
     
     should "attaches line numbers to individual nodes" do
-      @duplicate_analysis.method_definitions.each do |mdef|
+      @duplicate_analysis.sexp_blocks.each do |mdef|
         assert_kind_of Integer, mdef.line
       end
     end

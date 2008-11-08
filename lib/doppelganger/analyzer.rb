@@ -44,51 +44,50 @@ module Doppelganger
       method.name = exp.shift
       method.args = process(exp.shift)
       method.body = process(exp.shift)
-      method.flat_body_array = sexp_to_flat_array(method.body)
-      method.node = s(:defn, method.name, method.args, method.body)
+      method.node = s(:defn, method.name, method.args, method.body.dup).freeze
+      method.flat_body_array = method.body.dup.remove_literals.to_flat_ary
       method.filename = exp.file
       method.line = exp.line
       
       @method_definitions << method
-      
-      return s()
+      method.node
     end
     
-    # def process_block(exp)
-    #   block_node = BlockNode.new
-    #   block_node.body_nodes = []
-    #   until (exp.empty?) do
-    #     block_node.body_nodes << process(exp.shift)
-    #   end
-    #   block_node.flat_body_array = sexp_to_flat_array(block_node.body_nodes)
-    #   block_node.node = s(:block, *block_node.body_nodes)
-    #   block_node.filename = exp.file
-    #   block_node.line = exp.line
-    #   
-    #   @blocks << block_node
-    #   
-    #   return s()
-    # end
-    # 
-    # def process_iter(exp)
-    #   unless [:block, :call].include? exp[2][0]
-    #     iter_node = IterNode.new
-    #     iter_node.call_node = process(exp.shift)
-    #     iter_node.asgn_node = process(exp.shift)
-    #     iter_node.flat_body_array = sexp_to_flat_array(iter_node.body)
-    #     iter_node.node = s(:iter, iter_node.call_node, iter_node.asgn_node, iter_node.body)
-    #     iter_node.filename = exp.file
-    #     iter_node.line = exp.line
-    # 
-    #     @iter_nodes << iter_node
-    #   end
-    #   return s()
-    # end
-    
-    private
-      def sexp_to_flat_array(sexp)
-        sexp.to_a.flatten
+    def process_block(exp)
+      block_node = BlockNode.new
+      block_node.body_nodes = s()
+      until (exp.empty?) do
+        block_node.body_nodes << process(exp.shift)
       end
+      block_node.node = s(:block, *block_node.body_nodes.dup).freeze
+      block_node.flat_body_array = block_node.body_nodes.dup.remove_literals.to_flat_ary
+      block_node.filename = exp.file
+      block_node.line = exp.line
+      
+      @blocks << block_node
+      block_node.node
+    end
+    
+    def process_iter(exp)
+      unless exp[2][0] == :block
+        iter_node = IterNode.new
+        iter_node.call_node = process(exp.shift)
+        iter_node.asgn_node = process(exp.shift)
+        iter_node.body = process(exp.shift)
+        iter_node.node = s(:iter, iter_node.call_node, iter_node.asgn_node, iter_node.body.dup).freeze
+        iter_node.flat_body_array = iter_node.body.dup.remove_literals.to_flat_ary
+        iter_node.filename = exp.file
+        iter_node.line = exp.line
+    
+        @iter_nodes << iter_node
+        iter_node.node
+      else
+        call_node = process(exp.shift)
+        asgn_node = process(exp.shift)
+        body = process(exp.shift)
+        s(:iter, call_node, asgn_node, body)
+      end
+    end
     
   end
 end

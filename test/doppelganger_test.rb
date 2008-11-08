@@ -50,8 +50,8 @@ class DoppelgangerTest < DoppelgangerTestCase
     
     should "attaches filenames to individual nodes" do
       analysis = Doppelganger::Analyzer.new("test/sample_files/two_node_diff")
-      assert_match /first_file\.rb$/, analysis.method_definitions[0].filename
-      assert_match /second_file\.rb$/, analysis.method_definitions[1].filename
+      assert_match(/first_file\.rb$/, analysis.method_definitions[0].filename)
+      assert_match(/second_file\.rb$/, analysis.method_definitions[1].filename)
     end
     
     should "attaches line numbers to individual nodes" do

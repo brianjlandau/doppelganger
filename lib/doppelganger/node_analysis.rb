@@ -14,10 +14,10 @@ module Doppelganger
     def duplicates
       method_nodes = @method_definitions.map(&:body)
       (@method_definitions.inject([]) do |duplicate_defs, method_def|
-        node = method_def.body
+        node = method_def.body.remove_literals
         if method_nodes.duplicates?(node)
-          if duplicate_defs.map{|mdef| mdef.first.body}.include?(node)
-            duplicate_defs.find{|mdef| mdef.first.body == node } << method_def
+          if duplicate_defs.map{|mdef| mdef.first.body.remove_literals}.include?(node)
+            duplicate_defs.find{|mdef| mdef.first.body.remove_literals == node } << method_def
           else
             duplicate_defs << [method_def]
           end
@@ -68,7 +68,7 @@ module Doppelganger
       def stepwise_mdefs
         @method_definitions.dup.each do |element1|
           @method_definitions.dup.each do |element2|
-            next if element1.body == element2.body
+            next if element1.body.remove_literals == element2.body.remove_literals
             yield element1, element2
           end
         end

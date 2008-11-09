@@ -15,7 +15,6 @@ PROJ.email = 'brian.landau@viget.com'
 PROJ.url = 'http://doppelganger.rubyforge.org/'
 PROJ.version = Doppelganger::VERSION
 PROJ.rubyforge.name = 'doppelganger'
-PROJ.rdoc.include << 'LICENSE'
 
 PROJ.rcov.opts = ['--no-html', '-T', '--sort coverage',
                   '-x "\/Library\/Ruby\/"', 

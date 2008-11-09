@@ -2,32 +2,37 @@
 
 by Brian Landau of Viget Labs <brian.landau@viget.com>
 
-GitHub Project: http://github.com/brianjlandau/doppelganger
+[GitHub Project] http://github.com/brianjlandau/doppelganger
+[Rubyforge Project] http://rubyforge.org/projects/doppelganger/
+[RDoc] http://doppelganger.rubyforge.org/
 
 
 == DESCRIPTION:
 
 Doppelganger helps you to find areas of your code that are good places to refactor.
-It does this by finding methods that are duplicates or similar at specified threshold level.
+
+It does this by finding methods and blocks that are duplicates or have less then
+a set threshold level of difference or be less then a specified percent different.
 This library can either be used with in another larger code metric/heuristic library, or
 called from the command line.
 
 
-== FEATURES/PROBLEMS:
+== FEATURES:
 
-* Find duplicate methods.
-* Find methods similar by a threshold level of difference.
-* Find methods similar by threshold percentage.
+* Find duplicate methods and blocks.
+* Find methods and blocks similar by a threshold level of difference.
+* Find methods and blocks similar by threshold percentage.
 * Uses the Diff::LCS library for finding differences.
-* Uses ParseTree to compare methods.
-* Outputs the set of similar/duplicate methods together and what files they are in.
+* Uses RubyParser to compare methods.
+* Outputs the set of similar/duplicate nodes together and what files they are in and their line numbers.
 
 
 == REQUIREMENTS:
 
 * ruby_parser
-* Diff::LCS
 * sexp_processor
+* ParseTree
+* Diff::LCS
 
 
 == USAGE:
@@ -48,5 +53,6 @@ Find duplicates and methods that are 10 percent different or less.
 
 === CREDITS:
 
-Inspired and based of of Giles Bowkett's Towelie
+Inspired and based off of Giles Bowkett's Towelie
+Parts also influenced or extracted by Ryan Davis' Flay.
 

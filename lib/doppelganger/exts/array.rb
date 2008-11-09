@@ -1,9 +1,10 @@
 class Array
+  # Return all duplicate elments (uses <tt>==</tt> for comparison).
   def duplicates?(element)
     (self.select {|elem| elem == element}).size > 1
   end
   
-  def stepwise(compare_method)
+  def stepwise(compare_method) #:nodoc:
     self.each do |element1|
       self.each do |element2|
         next if element1.send(compare_method) == element2.send(compare_method)
@@ -12,7 +13,7 @@ class Array
     end
   end
   
-  def comparing_collect
+  def comparing_collect #:nodoc:
     accumulator = [] # collect implementation copied from Rubinius
     stepwise do |element1, element2|
       accumulator << element1 if yield(element1, element2)

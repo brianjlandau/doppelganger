@@ -7,7 +7,7 @@ namespace :doc do
   desc 'Generate RDoc documentation'
   Rake::RDocTask.new do |rd|
     rdoc = PROJ.rdoc
-    rd.main = rdoc.main
+    rd.main = rdoc.main || PROJ.readme_file
     rd.rdoc_dir = rdoc.dir
 
     incl = Regexp.new(rdoc.include.join('|'))

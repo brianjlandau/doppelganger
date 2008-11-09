@@ -1,5 +1,6 @@
 module Doppelganger
   # This handles the comparison of the Ruby nodes.
+  #
   # This will use various iterators to compare all the diffent block-like nodes
   # in your code base and find similar or duplicate nodes.
   module NodeAnalysis
@@ -64,6 +65,11 @@ module Doppelganger
         @sexp_blocks.dup.each do |node1|
           @sexp_blocks.dup.each do |node2|
             next if node1.body.remove_literals == node2.body.remove_literals
+            if !node1.is_a?(BlockNode) && node2.is_a?(BlockNode)
+              next if (node1.filename == node2.filename) && (node1.line..node1.last_line).include?(node2.line)
+            elsif node1.is_a?(BlockNode) && !node2.is_a?(BlockNode)
+              next if (node1.filename == node2.filename) && (node2.line..node2.last_line).include?(node1.line)
+            end
             yield node1, node2
           end
         end

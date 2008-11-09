@@ -1,8 +1,8 @@
 require "#{Doppelganger::LIBPATH}doppelganger/node_analysis"
 
-MethodDef = Struct.new(:name, :args, :body, :node, :filename, :line, :flat_body_array)
+MethodDef = Struct.new(:name, :args, :body, :node, :filename, :line, :flat_body_array, :block_body, :last_line)
 BlockNode = Struct.new(:body, :node, :filename, :line, :flat_body_array)
-IterNode = Struct.new(:call_node, :asgn_node, :body, :node, :filename, :line, :flat_body_array)
+IterNode = Struct.new(:call_node, :asgn_node, :body, :node, :filename, :line, :flat_body_array, :last_line)
 
 module Doppelganger
   # This class goes through all the ruby files in a directory and parses it into Sexp's.
@@ -23,27 +23,32 @@ module Doppelganger
       extract_definitions
     end
     
-    # This does throw all the files in the directory and parses them extracting all the
-    # method definitions.
+    # This goes through all the files in the directory and parses them extracting
+    # all the block-like nodes.
     def extract_definitions
-      Find.find(*Dir["#{self.dir}/**/*.rb"]) do |filename|
-        if File.file? filename
-          sexp = @pt.process(File.read(filename), filename)
-          process(sexp)
+      if File.directory? @dir
+        Find.find(*Dir["#{self.dir}/**/*.rb"]) do |filename|
+          if File.file? filename
+            sexp = @pt.process(File.read(filename), filename)
+            process(sexp)
+          end
         end
+      elsif File.file? @dir
+        sexp = @pt.process(File.read(@dir), @dir)
+        process(sexp)
       end
       @sexp_blocks
     end
     
-    # When ever a <tt>defn</tt> node is enountered this is method is called and used
-    # to process it. It extracts the method definition into our collection of methods.
     def process_defn(exp)
       method = MethodDef.new
       method.name = exp.shift
       method.args = process(exp.shift)
+      method.last_line = exp.get_last_line_number
       method.body = process(exp.shift)
       method.node = s(:defn, method.name, method.args, method.body.dup)
       method.flat_body_array = method.body.dup.remove_literals.to_flat_ary
+      method.block_body = get_block_body(method.body)
       method.filename = exp.file
       method.line = exp.line
       
@@ -71,6 +76,7 @@ module Doppelganger
         iter_node = IterNode.new
         iter_node.call_node = process(exp.shift)
         iter_node.asgn_node = process(exp.shift)
+        iter_node.last_line = exp.get_last_line_number
         iter_node.body = process(exp.shift)
         iter_node.node = s(:iter, iter_node.call_node, iter_node.asgn_node, iter_node.body.dup)
         iter_node.flat_body_array = iter_node.body.dup.remove_literals.to_flat_ary
@@ -86,6 +92,17 @@ module Doppelganger
         s(:iter, call_node, asgn_node, body)
       end
     end
+    
+    private
+      def get_block_body(node) #:nodoc:
+        block = node[1].dup
+        block.shift
+        block_body = s()
+        until (block.empty?)
+          block_body << block.shift
+        end
+        return block_body
+      end
     
   end
 end

@@ -3,10 +3,6 @@ require 'rubygems'
 require 'shoulda'
 require File.expand_path( File.join(File.dirname(__FILE__), %w[.. lib doppelganger]) )
 
-require 'ruby-debug'
-Debugger.start
-Debugger.settings[:autoeval] = true
-
 
 class DoppelgangerTestCase < Test::Unit::TestCase
   def setup

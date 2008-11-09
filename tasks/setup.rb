@@ -58,8 +58,8 @@ PROJ = OpenStruct.new(
   # Rdoc
   :rdoc => OpenStruct.new(
     :opts => [],
-    :include => %w(^lib/ ^bin/ ^ext/ \.txt$),
-    :exclude => %w(extconf\.rb$),
+    :include => %w((^lib/) (^ext/) (\.txt$) (\.rdoc$) (^LICENSE|CHANGELOG$)),
+    :exclude => %w((^bin/) (extconf\.rb$)),
     :main => nil,
     :dir => 'doc',
     :remote_dir => nil

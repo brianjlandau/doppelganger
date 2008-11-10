@@ -44,7 +44,7 @@ module Doppelganger
       method = MethodDef.new
       method.name = exp.shift
       method.args = process(exp.shift)
-      method.last_line = exp.get_last_line_number
+      method.last_line = exp.last_line_number
       method.body = process(exp.shift)
       method.node = s(:defn, method.name, method.args, method.body.dup)
       method.flat_body_array = method.body.dup.remove_literals.to_flat_ary
@@ -59,7 +59,7 @@ module Doppelganger
     def process_block(exp)
       block_node = BlockNode.new
       block_node.body = s()
-      block_node.last_line = exp.get_last_line_number
+      block_node.last_line = exp.last_line_number
       until (exp.empty?) do
         block_node.body << process(exp.shift)
       end
@@ -77,7 +77,7 @@ module Doppelganger
         iter_node = IterNode.new
         iter_node.call_node = process(exp.shift)
         iter_node.asgn_node = process(exp.shift)
-        iter_node.last_line = exp.get_last_line_number
+        iter_node.last_line = exp.last_line_number
         iter_node.body = process(exp.shift)
         iter_node.node = s(:iter, iter_node.call_node, iter_node.asgn_node, iter_node.body.dup)
         iter_node.flat_body_array = iter_node.body.dup.remove_literals.to_flat_ary

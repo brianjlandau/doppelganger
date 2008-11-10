@@ -10,7 +10,7 @@ class Sexp
   end
   
   # Finds the last line of the Sexp if that information is available.
-  def get_last_line_number
+  def last_line_number
     line_number = nil
     self.deep_each do |sub_node|
       if sub_node.respond_to? :line

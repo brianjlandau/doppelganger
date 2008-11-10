@@ -35,6 +35,11 @@ class DoppelgangerSexpTest < Test::Unit::TestCase
       assert_equal flat_array, @sexp.to_flat_ary
     end
     
+    should 'retrive last line number for a given node' do
+      assert_respond_to @sexp, :last_line_number
+      assert_equal 6, @sexp.last_line_number
+    end
+    
     teardown do
       @pt, @sexp = nil
     end

@@ -34,7 +34,7 @@ class Doppelganger::CLI
       end
     end
     
-    opts.parse!(ARGV)
+    opts.parse!(args)
     if ARGV.length < 1
       puts "ERROR: Missing expected arguments. ou must specify a directory parameter."
       puts
@@ -92,12 +92,12 @@ class Doppelganger::CLI
   def self.display_filename_line_and_method_name(method_defn)
     puts sprintf('     %1$*4$s:#%2$*5$d   `%3$s`', format_filename(method_defn.filename), 
                                            method_defn.line.to_i, method_defn.name, 
-                                           -@filename_length.to_i, -5)
+                                           @filename_length.to_i, -5)
   end
   
   def self.display_filename_and_line(block_node)
     puts sprintf('     %1$*3$s:#%2$*4$d', format_filename(block_node.filename), 
-                                           block_node.line.to_i, -@filename_length.to_i, -5)
+                                           block_node.line.to_i, @filename_length.to_i, -5)
   end
   
   def self.format_filename(filename)

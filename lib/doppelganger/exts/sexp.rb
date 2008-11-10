@@ -61,6 +61,29 @@ class Sexp
     end
   end
   
+  # Performs the block on every Sexp in this sexp, looking for one that returns true.
+  def deep_any?(&block)
+    self.any_sexp? do |sexp|
+      block[sexp] || sexp.deep_any?(&block)
+    end
+  end
+  
+  # Iterates through each child Sexp of the current Sexp and looks for any Sexp
+  # that returns true for the block.
+  def any_sexp?
+    self.any? do |sexp|
+      next unless Sexp === sexp
+
+      yield sexp
+    end
+  end
+  
+  def contains_block(block)
+    self.deep_any? do |sexp|
+      sexp == block
+    end
+  end
+  
   # First turns the Sexp into an Array then flattens it.
   def to_flat_ary
     self.to_a.flatten

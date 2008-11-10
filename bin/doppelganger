@@ -21,6 +21,10 @@ class Doppelganger::CLI
         options.percentage = n
       end
       
+      opts.on('-v', "--[no-]verbose", Integer, "Display compared nodes when matched.") do |v|
+        options.verbose = v
+      end
+      
       opts.separator ""
       
       opts.on_tail("-h", "--help", "Show this message") do
@@ -55,6 +59,8 @@ class Doppelganger::CLI
   
   def self.run(args)
     parse(args)
+    require 'pp' if @options.verbose
+    
     @doppelganger = Doppelganger::Analyzer.new(@options.dir)
     @filename_length = longest_filename(@doppelganger.sexp_blocks)
     
@@ -82,6 +88,10 @@ class Doppelganger::CLI
             display_filename_line_and_method_name(block_node)
           else
             display_filename_and_line(block_node)
+          end
+          if @options.verbose
+            pp block_node.node
+            puts
           end
         end
       end

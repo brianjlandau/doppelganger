@@ -37,7 +37,7 @@ module Doppelganger
           end
         end
       end
-      diff_nodes
+      cleanup_descendant_duplicate_matches(diff_nodes)
     end
     
     # Finds block-like nodes that differ by a given threshold percentage or less, but are not duplicates.
@@ -57,7 +57,7 @@ module Doppelganger
           end
         end
       end
-      diff_nodes
+      cleanup_descendant_duplicate_matches(diff_nodes)
     end
     
     protected
@@ -65,18 +65,36 @@ module Doppelganger
         @sexp_blocks.dup.each do |node1|
           @sexp_blocks.dup.each do |node2|
             next if node1.body.remove_literals == node2.body.remove_literals
-            if !node1.is_a?(BlockNode) && node2.is_a?(BlockNode)
-              next if (node1.filename == node2.filename) && (node1.line..node1.last_line).include?(node2.line)
-            elsif node1.is_a?(BlockNode) && !node2.is_a?(BlockNode)
-              next if (node1.filename == node2.filename) && (node2.line..node2.last_line).include?(node1.line)
+            if node1.is_a?(MethodDef) && node2.is_a?(BlockNode)
+              next if node_includes_block?(node1, node2)
+            elsif node1.is_a?(BlockNode) && node2.is_a?(MethodDef)
+              next if node_includes_block?(node2, node1)
             else
-              next if (node1.filename == node2.filename) && 
-                ((node2.line..node2.last_line).include?(node1.line) || 
-                (node1.line..node1.last_line).include?(node2.line))
+              next if (node_includes_block?(node1, node2) || node_includes_block?(node2, node1))
             end
             yield node1, node2
           end
         end
+      end
+      
+      def node_includes_block?(element, block)
+        (element.filename == block.filename) && 
+          ((element.line..(element.last_line+1)).include?(block.line) ||
+          element.node.contains_block(block.node))
+      end
+      
+      def cleanup_descendant_duplicate_matches(diff_nodes)
+        diff_nodes.dup.reject do |block_node_pair|
+          ancestor_pair_in_results?(block_node_pair, diff_nodes)
+        end
+      end
+      
+      def ancestor_pair_in_results?(pair, results)
+        matches = results.select do |block_node_pair|
+          block_node_pair.any?{|n| node_includes_block?(n, pair.first)} &&
+            block_node_pair.any?{|n| node_includes_block?(n, pair.last)}
+        end
+        matches.size > 1
       end
       
       def diffed_nodes_recorded?(diff_nodes, node1, node2)

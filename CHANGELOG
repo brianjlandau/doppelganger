@@ -1,3 +1,15 @@
+== 1.0.0 / 2008-11-09
+
+* Exclude literals from comparison (from Flay)
+* Compare blocks as well as methods
+* Move RubyParser from ParseTree
+* Cleanup formating of CLI output.
+* Remove Unique node reporting.
+* Remove unneeded view/Ruby2Ruby functionality.
+* Improve and Simplify tests
+* Change to using Test::Unit
+* Improve Documentation
+
 == 0.2.0 / 2008-11-06
 
 * Add percent different functionality.

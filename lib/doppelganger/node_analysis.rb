@@ -69,6 +69,10 @@ module Doppelganger
               next if (node1.filename == node2.filename) && (node1.line..node1.last_line).include?(node2.line)
             elsif node1.is_a?(BlockNode) && !node2.is_a?(BlockNode)
               next if (node1.filename == node2.filename) && (node2.line..node2.last_line).include?(node1.line)
+            else
+              next if (node1.filename == node2.filename) && 
+                ((node2.line..node2.last_line).include?(node1.line) || 
+                (node1.line..node1.last_line).include?(node2.line))
             end
             yield node1, node2
           end

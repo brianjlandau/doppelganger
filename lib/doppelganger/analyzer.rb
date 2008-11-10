@@ -1,7 +1,7 @@
 require "#{Doppelganger::LIBPATH}doppelganger/node_analysis"
 
 MethodDef = Struct.new(:name, :args, :body, :node, :filename, :line, :flat_body_array, :block_body, :last_line)
-BlockNode = Struct.new(:body, :node, :filename, :line, :flat_body_array)
+BlockNode = Struct.new(:body, :node, :filename, :line, :flat_body_array, :last_line)
 IterNode = Struct.new(:call_node, :asgn_node, :body, :node, :filename, :line, :flat_body_array, :last_line)
 
 module Doppelganger
@@ -59,6 +59,7 @@ module Doppelganger
     def process_block(exp)
       block_node = BlockNode.new
       block_node.body = s()
+      block_node.last_line = exp.get_last_line_number
       until (exp.empty?) do
         block_node.body << process(exp.shift)
       end

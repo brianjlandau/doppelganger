@@ -12,7 +12,7 @@ unless defined? Doppelganger
 module Doppelganger
   
   # :stopdoc:
-  VERSION = '0.2.0'.freeze
+  VERSION = '1.0.0'.freeze
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
 

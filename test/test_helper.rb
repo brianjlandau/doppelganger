@@ -56,6 +56,15 @@ class DoppelgangerTestCase < Test::Unit::TestCase
       
       [s(:block, s(:iter, s(:call, s(:self), :each, s(:arglist)), s(:lasgn, :sexp), s(:block, s(:if, s(:call, s(:const, :Sexp), :===, s(:arglist, s(:lvar, :sexp))), nil, s(:next)), s(:yield, s(:lvar, :sexp))))),
        s(:defn, :each_sexp, s(:args), s(:scope, s(:block, s(:iter, s(:call, s(:self), :each, s(:arglist)), s(:lasgn, :sexp), s(:block, s(:if, s(:call, s(:const, :Sexp), :===, s(:arglist, s(:lvar, :sexp))), nil, s(:next)), s(:yield, s(:lvar, :sexp)))))))],
+      
+      [s(:block, s(:iter, s(:call, s(:self), :each, s(:arglist)), s(:lasgn, :sexp), s(:block, s(:if, s(:call, s(:const, :Sexp), :===, s(:arglist, s(:lvar, :sexp))), nil, s(:next)), s(:yield, s(:lvar, :sexp))))),
+       s(:block, s(:iter, s(:call, s(:self), :any?, s(:arglist)), s(:lasgn, :sexp), s(:block, s(:if, s(:call, s(:const, :Sexp), :===, s(:arglist, s(:lvar, :sexp))), nil, s(:next)), s(:yield, s(:lvar, :sexp)))))],
+      
+      [s(:block, s(:iter, s(:call, s(:self), :each, s(:arglist)), s(:lasgn, :sexp), s(:block, s(:if, s(:call, s(:const, :Sexp), :===, s(:arglist, s(:lvar, :sexp))), nil, s(:next)), s(:yield, s(:lvar, :sexp))))),
+       s(:defn, :any_sexp?, s(:args), s(:scope, s(:block, s(:iter, s(:call, s(:self), :any?, s(:arglist)), s(:lasgn, :sexp), s(:block, s(:if, s(:call, s(:const, :Sexp), :===, s(:arglist, s(:lvar, :sexp))), nil, s(:next)), s(:yield, s(:lvar, :sexp)))))))],
+      
+      [s(:defn, :each_sexp, s(:args), s(:scope, s(:block, s(:iter, s(:call, s(:self), :each, s(:arglist)), s(:lasgn, :sexp), s(:block, s(:if, s(:call, s(:const, :Sexp), :===, s(:arglist, s(:lvar, :sexp))), nil, s(:next)), s(:yield, s(:lvar, :sexp))))))),
+       s(:block, s(:iter, s(:call, s(:self), :any?, s(:arglist)), s(:lasgn, :sexp), s(:block, s(:if, s(:call, s(:const, :Sexp), :===, s(:arglist, s(:lvar, :sexp))), nil, s(:next)), s(:yield, s(:lvar, :sexp)))))]
     ]
     
     duplicate_sample_file_path = File.expand_path(File.join(File.dirname(__FILE__), 'sample_files/duplicate_test_data'))

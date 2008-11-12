@@ -26,6 +26,7 @@ test/sample_files/larger_diff/first_file.rb
 test/sample_files/larger_diff/second_file.rb
 test/sample_files/non_duplicating_data/first_file.rb
 test/sample_files/non_duplicating_data/second_file.rb
+test/sample_files/repeats_removal_sample_file.rb
 test/sample_files/sexp_test_file.rb
 test/sexp_ext_test.rb
 test/test_helper.rb

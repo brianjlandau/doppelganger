@@ -2,9 +2,9 @@
 
 by Brian Landau of Viget Labs <brian.landau@viget.com>
 
-[GitHub Project] http://github.com/brianjlandau/doppelganger
-[Rubyforge Project] http://rubyforge.org/projects/doppelganger/
-[RDoc] http://doppelganger.rubyforge.org/
+[<b>GitHub Project</b>] http://github.com/brianjlandau/doppelganger
+[<b>RubyForge Project</b>] http://rubyforge.org/projects/doppelganger/
+[<b>RDoc</b>] http://doppelganger.rubyforge.org/
 
 
 == DESCRIPTION:
@@ -53,6 +53,7 @@ Find duplicates and methods that are 10 percent different or less.
 
 === CREDITS:
 
-Inspired and based off of Giles Bowkett's Towelie
+Inspired and based off of Giles Bowkett's Towelie.
+
 Parts also influenced or extracted by Ryan Davis' Flay.
 

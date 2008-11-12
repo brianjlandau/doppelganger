@@ -56,7 +56,6 @@ class Sexp
   def each_sexp
     self.each do |sexp|
       next unless Sexp === sexp
-
       yield sexp
     end
   end
@@ -73,7 +72,6 @@ class Sexp
   def any_sexp?
     self.any? do |sexp|
       next unless Sexp === sexp
-
       yield sexp
     end
   end

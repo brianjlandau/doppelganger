@@ -40,6 +40,11 @@ class DoppelgangerSexpTest < Test::Unit::TestCase
       assert_equal 6, @sexp.last_line_number
     end
     
+    should 'determin if a block Sexp node is a child of another node' do
+      block_node = @sexp[3][1]
+      assert @sexp.contains_block?(block_node)
+    end
+    
     teardown do
       @pt, @sexp = nil
     end

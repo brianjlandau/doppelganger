@@ -78,5 +78,28 @@ class DoppelgangerTest < DoppelgangerTestCase
     end
   end
   
+  context "percent diff analysis" do
+    setup do
+      repeats_removal_file_path = File.expand_path(File.join(File.dirname(__FILE__), 'sample_files/repeats_removal_sample_file.rb'))
+      @repeats_removal_analysis = Doppelganger::Analyzer.new(repeats_removal_file_path)
+      @repeats_diff = @repeats_removal_analysis.percent_diff(10)
+      @analysis_nodes = @repeats_diff.map {|pair|
+        [pair.first.node, pair.last.node]
+      }
+    end
+    
+    should 'ensure that repeated smaller nested nodes are noth included' do
+      @repeated_pairs.each do |pair|
+        assert !(@analysis_nodes.any? { |node_pair|
+          (node_pair.include?(pair.first.node) && node_pair.include?(pair.last.node))
+        })
+      end
+    end
+    
+    teardown do
+      @repeats_removal_analysis, @analysis_nodes = nil
+    end
+  end
+  
 end
 

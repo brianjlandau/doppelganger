@@ -65,22 +65,16 @@ module Doppelganger
         @sexp_blocks.dup.each do |node1|
           @sexp_blocks.dup.each do |node2|
             next if node1.body.remove_literals == node2.body.remove_literals
-            if node1.is_a?(MethodDef) && node2.is_a?(BlockNode)
-              next if node_includes_block?(node1, node2)
-            elsif node1.is_a?(BlockNode) && node2.is_a?(MethodDef)
-              next if node_includes_block?(node2, node1)
-            else
-              next if (node_includes_block?(node1, node2) || node_includes_block?(node2, node1))
-            end
+            next if one_node_is_child_of_the_other? node1, node2
             yield node1, node2
           end
         end
       end
       
-      def node_includes_block?(element, block)
-        (element.filename == block.filename) && 
-          ((element.line..(element.last_line+1)).include?(block.line) ||
-          element.node.contains_block(block.node))
+      def node_includes_block?(element, block_node)
+        (element.filename == block_node.filename) && 
+          ((element.line..(element.last_line+1)).include?(block_node.line) ||
+          element.node.contains_block?(block_node.node))
       end
       
       def cleanup_descendant_duplicate_matches(diff_nodes)
@@ -95,6 +89,16 @@ module Doppelganger
             block_node_pair.any?{|n| node_includes_block?(n, pair.last)}
         end
         matches.size > 1
+      end
+      
+      def one_node_is_child_of_the_other?(node1, node2)
+        if node1.is_a?(MethodDef) && node2.is_a?(BlockNode)
+          (node_includes_block?(node1, node2))
+        elsif node1.is_a?(BlockNode) && node2.is_a?(MethodDef)
+          (node_includes_block?(node2, node1))
+        else
+          (node_includes_block?(node1, node2) || node_includes_block?(node2, node1))
+        end
       end
       
       def diffed_nodes_recorded?(diff_nodes, node1, node2)

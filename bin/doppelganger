@@ -21,7 +21,7 @@ class Doppelganger::CLI
         options.percentage = n
       end
       
-      opts.on('-v', "--[no-]verbose", Integer, "Display compared nodes when matched.") do |v|
+      opts.on('-v', "--[no-]verbose", "Display compared nodes when matched.") do |v|
         options.verbose = v
       end
       

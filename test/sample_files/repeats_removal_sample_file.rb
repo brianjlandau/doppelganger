@@ -1,4 +1,6 @@
-# This is pulled in part from Ryan Davis' Sexp additions in Flay.
+# The Sexp extension of this library excelent examples of repeated comparisons
+# between "blocks" that need to be trimmed from the output. So I've duplicated
+# and frozen it in this file.
 
 class Sexp
   # Performs the block on every Sexp in this sexp.

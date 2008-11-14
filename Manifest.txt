@@ -5,10 +5,11 @@ README.rdoc
 Rakefile
 bin/doppelganger
 lib/doppelganger.rb
-lib/doppelganger/analyzer.rb
+lib/doppelganger/extractor.rb
 lib/doppelganger/exts/array.rb
 lib/doppelganger/exts/sexp.rb
 lib/doppelganger/node_analysis.rb
+lib/doppelganger/unified_ruby.rb
 tasks/bones.rake
 tasks/gem.rake
 tasks/git.rake
@@ -24,8 +25,6 @@ test/sample_files/duplicate_test_data/first_file.rb
 test/sample_files/duplicate_test_data/second_file.rb
 test/sample_files/larger_diff/first_file.rb
 test/sample_files/larger_diff/second_file.rb
-test/sample_files/non_duplicating_data/first_file.rb
-test/sample_files/non_duplicating_data/second_file.rb
 test/sample_files/repeats_removal_sample_file.rb
 test/sample_files/sexp_test_file.rb
 test/sexp_ext_test.rb

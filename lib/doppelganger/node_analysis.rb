@@ -3,7 +3,13 @@ module Doppelganger
   #
   # This will use various iterators to compare all the diffent block-like nodes
   # in your code base and find similar or duplicate nodes.
-  module NodeAnalysis
+  class NodeAnalysis
+    
+    attr_accessor :sexp_blocks
+    
+    def initialize(sexp_blocks)
+      @sexp_blocks = sexp_blocks
+    end
     
     # Are there any duplicates in the code base.
     def duplication?

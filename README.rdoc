@@ -31,8 +31,9 @@ called from the command line.
 
 * ruby_parser
 * sexp_processor
-* ParseTree
 * Diff::LCS
+* Ruby2Ruby
+* HighLine
 
 
 == USAGE:

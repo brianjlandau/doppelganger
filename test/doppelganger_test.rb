@@ -3,13 +3,14 @@ require File.dirname(__FILE__) + '/test_helper'
 class DoppelgangerTest < DoppelgangerTestCase
   
   context 'normal analysis' do
-    should "identify duplication" do
-      assert @duplicate_analysis.duplication?
+    setup do
+      duplicate_sample_file_path = File.expand_path(File.join(File.dirname(__FILE__), 'sample_files/duplicate_test_data'))
+      @sexps = @analyzer.extract_blocks(duplicate_sample_file_path)
+      @duplicate_analysis = Doppelganger::NodeAnalysis.new(@sexps)
     end
     
-    should "return no false positives when identifying duplication" do
-      analysis = Doppelganger::Analyzer.new("test/sample_files/non_duplicating_data")
-      assert !analysis.duplication?
+    should "identify duplication" do
+      assert @duplicate_analysis.duplication?
     end
     
     should "extract :defn nodes" do
@@ -31,7 +32,7 @@ class DoppelgangerTest < DoppelgangerTestCase
     
     should "attaches filenames to individual nodes" do
       @duplicate_analysis.sexp_blocks.each do |mdef|
-        assert_match /\/\w+_file\.rb$/, mdef.filename
+        assert_match(/\/\w+_file\.rb$/, mdef.filename)
       end
     end
     
@@ -40,11 +41,16 @@ class DoppelgangerTest < DoppelgangerTestCase
         assert_kind_of Integer, mdef.line
       end
     end
+    
+    teardown do
+      @sexps, @duplicate_analysis = nil
+    end
   end
   
   context 'doing diff anlaysis' do
     setup do
-      @larger_diff_analysis = Doppelganger::Analyzer.new("test/sample_files/larger_diff")
+      @sexps = @analyzer.extract_blocks("test/sample_files/larger_diff")
+      @larger_diff_analysis = Doppelganger::NodeAnalysis.new(@sexps)
     end
   
     should "report methods which differ by arbitrary numbers of diffs" do
@@ -74,14 +80,15 @@ class DoppelgangerTest < DoppelgangerTestCase
     end
     
     teardown do
-      @larger_analysis = nil
+      @larger_diff_analysis, @sexps = nil
     end
   end
   
   context "percent diff analysis" do
     setup do
       repeats_removal_file_path = File.expand_path(File.join(File.dirname(__FILE__), 'sample_files/repeats_removal_sample_file.rb'))
-      @repeats_removal_analysis = Doppelganger::Analyzer.new(repeats_removal_file_path)
+      @sexps = @analyzer.extract_blocks(repeats_removal_file_path)
+      @repeats_removal_analysis = Doppelganger::NodeAnalysis.new(@sexps)
       @repeats_diff = @repeats_removal_analysis.percent_diff(10)
       @analysis_nodes = @repeats_diff.map {|pair|
         [pair.first.node, pair.last.node]
@@ -97,7 +104,7 @@ class DoppelgangerTest < DoppelgangerTestCase
     end
     
     teardown do
-      @repeats_removal_analysis, @analysis_nodes = nil
+      @repeats_removal_analysis, @analysis_nodes, @repeats_diff, @sexps = nil
     end
   end
   

@@ -67,14 +67,13 @@ class DoppelgangerTestCase < Test::Unit::TestCase
        s(:block, s(:iter, s(:call, s(:self), :any?, s(:arglist)), s(:lasgn, :sexp), s(:block, s(:if, s(:call, s(:const, :Sexp), :===, s(:arglist, s(:lvar, :sexp))), nil, s(:next)), s(:yield, s(:lvar, :sexp)))))]
     ]
     
-    duplicate_sample_file_path = File.expand_path(File.join(File.dirname(__FILE__), 'sample_files/duplicate_test_data'))
-    @duplicate_analysis = Doppelganger::Analyzer.new(duplicate_sample_file_path)
+    @analyzer = Doppelganger::Extractor.new
   end
   
   def default_test; end
   
   def teardown
-    @the_nodes,  @unique_block, @bigger_diff_blocks, @duplicate_analysis, @repeats_removal_analysis = nil
+    @the_nodes,  @unique_block, @bigger_diff_blocks, @anlyzer, @repeated_pairs = nil
   end
 end
 

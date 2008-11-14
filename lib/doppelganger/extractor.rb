@@ -1,3 +1,4 @@
+require "#{Doppelganger::LIBPATH}doppelganger/unified_ruby"
 require "#{Doppelganger::LIBPATH}doppelganger/node_analysis"
 
 MethodDef = Struct.new(:name, :args, :body, :node, :filename, :line, :flat_body_array, :last_line)
@@ -8,34 +9,32 @@ module Doppelganger
   # This class goes through all the ruby files in a directory and parses it into Sexp's.
   # It then exracts the definitions and stores them all and then includes the NodeAnalysis module
   # with allows a number of comparisons.
-  class Analyzer < SexpProcessor
+  class Extractor < SexpProcessor
     include UnifiedRuby
-    include Doppelganger::NodeAnalysis
     
     attr_reader :sexp_blocks, :dir
     
-    def initialize(dir)
-      super()
-      @dir = File.expand_path(dir)
+    def initialize
+      super
       self.auto_shift_type = true
-      @pt = RubyParser.new
+      @rp = RubyParser.new
       @sexp_blocks = []
-      extract_definitions
     end
     
     # This goes through all the files in the directory and parses them extracting
     # all the block-like nodes.
-    def extract_definitions
+    def extract_blocks(dir)
+      @dir = File.expand_path(dir)
       if File.directory? @dir
         Find.find(*Dir["#{self.dir}/**/*.rb"]) do |filename|
           if File.file? filename
-            sexp = @pt.process(File.read(filename), filename)
-            process(sexp)
+            sexp = @rp.process(File.read(filename), filename)
+            self.process(sexp)
           end
         end
       elsif File.file? @dir
-        sexp = @pt.process(File.read(@dir), @dir)
-        process(sexp)
+        sexp = @rp.process(File.read(@dir), @dir)
+        self.process(sexp)
       end
       @sexp_blocks
     end
@@ -57,12 +56,18 @@ module Doppelganger
     
     def process_block(exp)
       block_node = BlockNode.new
-      block_node.body = s()
       block_node.last_line = exp.last_line_number
-      until (exp.empty?) do
-        block_node.body << process(exp.shift)
+      if exp.size > 1
+        block_node.body = s()
+        until (exp.empty?) do
+          block_node.body << process(exp.shift)
+        end
+        block_node.node = s(:block, *block_node.body.dup)
+      else
+        block_node.body = exp.shift
+        block_node.node = s(:block, block_node.body.dup)
       end
-      block_node.node = s(:block, *block_node.body.dup)
+
       block_node.flat_body_array = block_node.body.dup.remove_literals.to_flat_ary
       block_node.filename = exp.file
       block_node.line = exp.line

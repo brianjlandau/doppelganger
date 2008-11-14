@@ -1,7 +1,11 @@
 require 'find'
+require 'rubygems'
+gem 'sexp_processor', '~> 3.0.0'
 require 'sexp_processor'
-require 'unified_ruby'
+require 'composite_sexp_processor'
+gem 'ruby_parser', '~> 2.0.0'
 require 'ruby_parser'
+gem 'diff-lcs', '~> 1.1'
 require 'diff/lcs'
 require 'diff/lcs/array'
 

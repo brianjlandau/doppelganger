@@ -12,7 +12,7 @@ class Doppelganger::CLI
     opts = OptionParser.new do |opts|
       opts.banner = "Usage: doppelganger [options] directory"
       
-      opts.separator ""
+      opts.separator " "
       opts.separator "Options:"
       
       opts.on('-t', "--threshold [N]", Integer, "The number of node differences to print blocks for.") do |n|
@@ -27,11 +27,11 @@ class Doppelganger::CLI
         options.verbose = v
       end
       
-      opts.on('--no-color', "Don't use color output") do |c|
+      opts.on('--no-color', "Don't use color output.") do |c|
         options.no_color = true
       end
       
-      opts.separator ""
+      opts.separator " "
       
       opts.on_tail("-h", "--help", "Show this message") do
         puts opts
@@ -118,7 +118,7 @@ class Doppelganger::CLI
             display_filename_and_line(block_node)
           end
           if @options.verbose
-            print_text(@ruby2ruby.process(block_node.node).gsub(/\n/, "\n     ").insert(0, '     '), :code)
+            print_text(@ruby2ruby.process(block_node.node.deep_clone).gsub(/\n/, "\n"+(' '*6)).insert(0, ' '*6), :code)
             puts
           end
         end
@@ -128,19 +128,25 @@ class Doppelganger::CLI
   end
   
   def self.display_filename_line_and_method_name(method_defn)
-    print_text(sprintf('  -> [%1$*4$s:#%2$*5$d => `%3$s`]', format_filename(method_defn.filename), 
+    print_text(sprintf('   -> [%1$*4$s:#%2$*5$d => `%3$s`]', format_filename(method_defn.filename), 
                                            method_defn.line.to_i, method_defn.name, 
                                            @filename_length.to_i, -5), :block_item)
   end
   
   def self.display_filename_and_line(block_node)
-    print_text(sprintf('  -> %1$*3$s:#%2$*4$d', format_filename(block_node.filename), 
+    print_text(sprintf('   -> [%1$*3$s:#%2$*4$d]', format_filename(block_node.filename), 
                                            block_node.line.to_i, @filename_length.to_i, -5), :block_item)
   end
   
   def self.format_filename(filename)
     relative_filename = filename.gsub(@root_path, '.')
-    relative_filename.size > @filename_length ? relative_filename[-@filename_length, @filename_length] : relative_filename
+    if relative_filename.size > @filename_length
+      output_filename = relative_filename[-@filename_length, @filename_length]
+      output_filename[0..2] = '...'
+    else
+      output_filename = relative_filename
+    end
+    output_filename
   end
   
   def self.longest_filename(nodes)

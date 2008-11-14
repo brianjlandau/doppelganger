@@ -50,7 +50,9 @@ module Doppelganger
       method.filename = exp.file
       method.line = exp.line
       
-      @sexp_blocks << method
+      unless method.body == s(:scope, s(:block, s(:nil)))
+        @sexp_blocks << method
+      end
       method.node
     end
     
@@ -72,7 +74,9 @@ module Doppelganger
       block_node.filename = exp.file
       block_node.line = exp.line
       
-      @sexp_blocks << block_node
+      unless block_node.body == s(:nil)
+        @sexp_blocks << block_node
+      end
       block_node.node
     end
     

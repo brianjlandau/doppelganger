@@ -17,7 +17,7 @@ namespace :git do
     v = ENV['VERSION'] or abort 'Must supply VERSION=x.y.z'
     abort "Versions don't match #{v} vs #{PROJ.version}" if v != PROJ.version
 
-    tag = "%s-%s" % [PROJ.name, PROJ.version]
+    tag = "v#{PROJ.version}"
     msg = "Creating tag for #{PROJ.name} version #{PROJ.version}"
 
     puts "Creating Git tag '#{tag}'"

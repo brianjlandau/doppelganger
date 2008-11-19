@@ -34,42 +34,46 @@ module Doppelganger
     end
     
     # Finds block-like nodes that differ from another node by the threshold or less, but are not duplicates.
-    def diff(threshold)
+    def diff(threshold, progress_bar = nil)
       diff_nodes = []
-      stepwise_sblocks do |block_node_1, block_node_2|
+      @compared_node_pairs = []
+      stepwise_sblocks(progress_bar) do |block_node_1, block_node_2|
         if threshold >= Diff::LCS.diff(block_node_1.flat_body_array, block_node_2.flat_body_array).size
-          unless diffed_nodes_recorded?(diff_nodes, block_node_1, block_node_2)
-            diff_nodes << [block_node_1, block_node_2]
-          end
+          diff_nodes << [block_node_1, block_node_2]
         end
+        @compared_node_pairs << [block_node_1, block_node_2]
       end
+      @compared_node_pairs = []
       cleanup_descendant_duplicate_matches(diff_nodes)
     end
     
     # Finds block-like nodes that differ by a given threshold percentage or less, but are not duplicates.
-    def percent_diff(percentage)
+    def percent_diff(percentage, progress_bar = nil)
       # To calculate the percentage we can do this in one of two ways we can compare
       # total differences (the diff set flattened) over the total nodes (the flattened bodies added)
       # or we can compare the number of change sets (the size of the diff) over the average number of nodes
       # in the two methods.
       # Not sure which is best but I've gone with the former for now.
       diff_nodes = []
-      stepwise_sblocks do |block_node_1, block_node_2|
+      @compared_node_pairs = []
+      stepwise_sblocks(progress_bar) do |block_node_1, block_node_2|
         total_nodes = block_node_1.flat_body_array.size + block_node_2.flat_body_array.size
         diff_size = Diff::LCS.diff(block_node_1.flat_body_array, block_node_2.flat_body_array).flatten.size
         if percentage >= (diff_size.to_f/total_nodes.to_f * 100)
-          unless diffed_nodes_recorded?(diff_nodes, block_node_1, block_node_2)
-            diff_nodes << [block_node_1, block_node_2]
-          end
+          diff_nodes << [block_node_1, block_node_2]
         end
+        @compared_node_pairs << [block_node_1, block_node_2]
       end
+      @compared_node_pairs = []
       cleanup_descendant_duplicate_matches(diff_nodes)
     end
     
     protected
-      def stepwise_sblocks
+      def stepwise_sblocks(progress_bar = nil)
         @sexp_blocks.dup.each do |node1|
           @sexp_blocks.dup.each do |node2|
+            progress_bar.inc unless progress_bar.nil?
+            next if nodes_compared? node1, node2
             next if node1.body.remove_literals == node2.body.remove_literals
             next if one_node_is_child_of_the_other? node1, node2
             yield node1, node2
@@ -84,7 +88,7 @@ module Doppelganger
       end
       
       def cleanup_descendant_duplicate_matches(diff_nodes)
-        diff_nodes.dup.reject do |block_node_pair|
+        diff_nodes.reject do |block_node_pair|
           ancestor_pair_in_results?(block_node_pair, diff_nodes)
         end
       end
@@ -107,8 +111,8 @@ module Doppelganger
         end
       end
       
-      def diffed_nodes_recorded?(diff_nodes, node1, node2)
-        diff_nodes.any? do |block_node_pair|
+      def nodes_compared?(node1, node2)
+        @compared_node_pairs.any? do |block_node_pair|
           block_pair_nodes = block_node_pair.map(&:node)
           block_pair_nodes.include?(node1.node) && block_pair_nodes.include?(node2.node)
         end

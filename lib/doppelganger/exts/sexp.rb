@@ -46,8 +46,7 @@ class Sexp
   # Removes all literals from the Sexp (Symbols aren't excluded as they are used internally
   # by Sexp for node names which identifies structure important for comparison.)
   def remove_literals
-    output = self.dup
-    output.deep_reject do |node|
+    self.deep_reject do |node|
       !((node.is_a?(Symbol)) || (node.is_a?(Sexp)))
     end
   end

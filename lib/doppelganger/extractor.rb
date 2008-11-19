@@ -1,5 +1,4 @@
 require "#{Doppelganger::LIBPATH}doppelganger/unified_ruby"
-require "#{Doppelganger::LIBPATH}doppelganger/node_analysis"
 
 MethodDef = Struct.new(:name, :args, :body, :node, :filename, :line, :flat_body_array, :last_line)
 BlockNode = Struct.new(:body, :node, :filename, :line, :flat_body_array, :last_line)

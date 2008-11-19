@@ -2,15 +2,21 @@
 
 require 'optparse'
 require 'ostruct'
-gem 'highline', '~> 1.4'
-require 'highline'
+require 'facets/progressbar'
 require File.expand_path( File.join(File.dirname(__FILE__), %w[.. lib doppelganger]) )
+
 
 class Doppelganger::CLI
   def self.parse(args)
     options = OpenStruct.new
+    options.verbose = false
+    options.color = true
+    options.progress_bar = true
+    
     opts = OptionParser.new do |opts|
-      opts.banner = "Usage: doppelganger [options] directory"
+      opts.program_name = 'doppelganger'
+      opts.version = Doppelganger.version
+      opts.banner = "Usage: #{opts.program_name} [options] DIRECTORY"
       
       opts.separator " "
       opts.separator "Options:"
@@ -27,19 +33,23 @@ class Doppelganger::CLI
         options.verbose = v
       end
       
-      opts.on('--no-color', "Don't use color output.") do |c|
-        options.no_color = true
+      opts.on('--[no-]color', "Don't use color output.") do |c|
+        options.color = c
+      end
+      
+      opts.on('--[no-]progress-bar', "Don't show the progress bar on Diffs.") do |pb|
+        options.progress_bar = pb
       end
       
       opts.separator " "
       
       opts.on_tail("-h", "--help", "Show this message") do
-        puts opts
+        puts opts.help
         exit
       end
 
       opts.on_tail("--version", "Show version") do
-        puts "#{program_name} #{Doppelganger::Version}"
+        puts opts.ver
         exit
       end
     end
@@ -66,7 +76,9 @@ class Doppelganger::CLI
   def self.run(args)
     parse(args)
     
-    unless @options.no_color
+    if @options.color
+      gem 'highline', '~> 1.4'
+      require 'highline'
       HighLine.color_scheme = HighLine::ColorScheme.new do |cs|
         cs[:headline] = [:bold, :magenta]
         cs[:set_start] = [:cyan]
@@ -74,14 +86,13 @@ class Doppelganger::CLI
         cs[:block_item] = [:red]
         cs[:code] = [:green]
       end
-    
       @hl = HighLine.new
     end
     
     @doppelganger = Doppelganger::Extractor.new
     @sexp_blocks = @doppelganger.extract_blocks(@options.dir)
     @analysis = Doppelganger::NodeAnalysis.new(@sexp_blocks)
-    @filename_length = longest_filename(@analysis.sexp_blocks)
+    @max_filename_length = longest_filename(@sexp_blocks)
     
     if @options.verbose
       gem 'ruby2ruby', '~> 1.2.0'
@@ -93,22 +104,33 @@ class Doppelganger::CLI
     display_block_sets duplicates, "=== DUPLICATES: ===\n", ' -- [DUPLICATED BLOCK SET]:'
     
     if @options.threshold
-      similar_methods = @analysis.diff(@options.threshold)
-      display_block_sets similar_methods, "=== MAX DIFF of #{@options.threshold} NODES: ===\n", ' -- [SIMILAR BLOCK PAIR]:'
+      compare_nodes(:diff, @options.threshold, "MAX DIFF of #{@options.threshold} NODES")
     end
     
     if @options.percentage
-      similar_methods = @analysis.percent_diff(@options.percentage)
-      display_block_sets similar_methods, "=== PERCENT DIFF of #{@options.percentage}%: ===\n", ' -- [SIMILAR BLOCK PAIR]:'
+      compare_nodes(:percent_diff, @options.percentage, "PERCENT DIFF of #{@options.percentage}%")
     end
+  end
+  
+  def self.compare_nodes(method, diff_size, title)
+    print_text('-' * 80, :horizontal_line)
+    puts
+    if @options.progress_bar
+      progress_bar = ProgressBar.new("DIFF Progress", @sexp_blocks.size**2)
+      progress_bar.bar_mark = '='
+      similar_methods = @analysis.send(method, diff_size, progress_bar)
+      progress_bar.finish
+      puts
+    else
+      similar_methods = @analysis.send(method, diff_size)
+    end
+    display_block_sets similar_methods, "=== #{title}: ===\n", ' -- [SIMILAR BLOCK PAIR]:'
   end
   
   def self.display_block_sets(set, title, set_title)
     unless set.empty?
-      print_text('-' * 80, :horizontal_line)
-      puts
       print_text(title, :headline)
-      puts if @options.no_color
+      puts unless @options.color
       set.each do |block_set|
         print_text(set_title, :set_start)
         block_set.each do |block_node|
@@ -128,20 +150,20 @@ class Doppelganger::CLI
   end
   
   def self.display_filename_line_and_method_name(method_defn)
-    print_text(sprintf('   -> [%1$*4$s:#%2$*5$d => `%3$s`]', format_filename(method_defn.filename), 
+    print_text(sprintf('   -> %1$*4$s:#%2$*5$d => `%3$s`', format_filename(method_defn.filename), 
                                            method_defn.line.to_i, method_defn.name, 
-                                           @filename_length.to_i, -5), :block_item)
+                                           @max_filename_length.to_i, -5), :block_item)
   end
   
   def self.display_filename_and_line(block_node)
-    print_text(sprintf('   -> [%1$*3$s:#%2$*4$d]', format_filename(block_node.filename), 
-                                           block_node.line.to_i, @filename_length.to_i, -5), :block_item)
+    print_text(sprintf('   -> %1$*3$s:#%2$*4$d', format_filename(block_node.filename), 
+                                           block_node.line.to_i, @max_filename_length.to_i, -5), :block_item)
   end
   
   def self.format_filename(filename)
     relative_filename = filename.gsub(@root_path, '.')
-    if relative_filename.size > @filename_length
-      output_filename = relative_filename[-@filename_length, @filename_length]
+    if relative_filename.size > @max_filename_length
+      output_filename = relative_filename[-@max_filename_length, @max_filename_length]
       output_filename[0..2] = '...'
     else
       output_filename = relative_filename
@@ -151,14 +173,14 @@ class Doppelganger::CLI
   
   def self.longest_filename(nodes)
     max_filename_length = nodes.map{|n| n.filename.gsub(@root_path, '.').size}.max
-    max_filename_length > 30 ? 30 : max_filename_length
+    max_filename_length > 50 ? 50 : max_filename_length
   end
   
   def self.print_text(text, color)
-    if @options.no_color
-      puts text
-    else
+    if @options.color
       @hl.say(@hl.color(text, color))
+    else
+      puts text
     end
   end
 end

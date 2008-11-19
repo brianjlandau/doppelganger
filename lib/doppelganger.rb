@@ -7,7 +7,6 @@ gem 'ruby_parser', '~> 2.0.0'
 require 'ruby_parser'
 gem 'diff-lcs', '~> 1.1'
 require 'diff/lcs'
-require 'diff/lcs/array'
 
 # Equivalent to a header guard in C/C++
 # Used to prevent the class/module from being loaded more than once
@@ -16,7 +15,7 @@ unless defined? Doppelganger
 module Doppelganger
   
   # :stopdoc:
-  VERSION = '1.0.0'.freeze
+  VERSION = '0.8.0'.freeze
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
 

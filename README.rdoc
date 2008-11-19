@@ -26,6 +26,12 @@ called from the command line.
 * Uses RubyParser to compare methods.
 * Outputs the set of similar/duplicate nodes together and what files they are in and their line numbers.
 
+== CAVEATS:
+
+Doing the Diff::LCS on all the flattened Sexps is a very time consuming and processor 
+intense operation. This means doing the "diff" or "percent_diff" comparisons on large 
+libraries can take a very long time.
+
 
 == REQUIREMENTS:
 
@@ -34,6 +40,7 @@ called from the command line.
 * Diff::LCS
 * Ruby2Ruby
 * HighLine
+* Facets
 
 
 == USAGE:

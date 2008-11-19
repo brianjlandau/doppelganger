@@ -29,4 +29,5 @@ depend_on 'ruby_parser', '~> 2.0.0'
 depend_on 'ruby2ruby', '~> 1.2.0'
 depend_on 'diff-lcs', '~> 1.1'
 depend_on 'highline', '~> 1.4'
+depend_on 'facets'
 
